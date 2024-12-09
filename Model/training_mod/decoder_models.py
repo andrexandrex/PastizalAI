@@ -419,3 +419,125 @@ class DeepLabV3(nn.Module):
         aspp_output_feature = self.aspp_block(encoded_features)
         final_output_feature = self.classifier_conv_block(aspp_output_feature)
         return final_output_feature
+    
+
+
+
+
+class DecoderBlockUNET(nn.Module):
+    def __init__(self, in_channels, skip_channels, out_channels):
+        super().__init__()
+        # Calculate the total number of input channels after concatenation
+        total_in_channels = in_channels + skip_channels
+
+        # First convolution layer expects total_in_channels as input
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(
+                total_in_channels,
+                out_channels,
+                kernel_size=3,
+                padding=1,
+                bias=False,
+            ),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+        )
+
+        # Second convolution layer
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(
+                out_channels,
+                out_channels,
+                kernel_size=3,
+                padding=1,
+                bias=False,
+            ),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+        )
+
+    def forward(self, x, skip=None):
+        if skip is not None:
+            x = F.interpolate(x, size=skip.shape[2:], mode='bilinear', align_corners=False)
+            x = torch.cat([x, skip], dim=1)
+            print(f"After concatenation: x.shape = {x.shape}")
+        else:
+            x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+            print(f"After upsampling: x.shape = {x.shape}")
+        x = self.conv1(x)
+        x = self.conv2(x)
+        return x
+
+
+class Conv2dReLU(nn.Sequential):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size=3,
+        padding=1,
+        stride=1,
+        use_batchnorm=True,
+    ):
+        conv = nn.Conv2d(
+            in_channels,
+            out_channels,
+            kernel_size,
+            stride=stride,
+            padding=padding,
+            bias=not use_batchnorm,
+        )
+        bn = nn.BatchNorm2d(out_channels) if use_batchnorm else nn.Identity()
+        relu = nn.ReLU(inplace=True)
+
+        super(Conv2dReLU, self).__init__(conv, bn, relu)
+class TransUNetDecoder(nn.Module):
+    def __init__(self, config):
+        super(TransUNetDecoder, self).__init__()
+        self.config = config
+
+        # Set head_channels to config["hidden_size"] (768)
+        head_channels = config["hidden_size"]
+        self.conv_more = Conv2dReLU(config["hidden_size"], head_channels, kernel_size=3, padding=1)
+
+        decoder_channels = config["decoder_channels"]  # [256, 128, 64, 16]
+        skip_channels = config["skip_channels"] + [0] * (len(decoder_channels) - len(config["skip_channels"]))  # [1024, 512, 256, 0]
+
+        # Adjust in_channels to correctly reflect the output channels after upsampling and concatenation
+        in_channels = [head_channels] + decoder_channels[:-1]  # [768, 256, 128, 64]
+        out_channels = decoder_channels  # [256, 128, 64, 16]
+
+        # Initialize DecoderBlocks with correct in_channels and skip_channels
+        self.blocks = nn.ModuleList([
+            DecoderBlockUNET(
+                in_channels=in_ch,
+                out_channels=out_ch,
+                skip_channels=skip_ch
+            )
+            for in_ch, out_ch, skip_ch in zip(in_channels, out_channels, skip_channels)
+        ])
+
+    def forward(self, hidden_states, features=None):
+        x = hidden_states.permute(0, 2, 1)
+        print(f"Decoder input x.shape: {x.shape}") 
+        B, hidden, n_patches = x.size()
+        h = w = int(np.sqrt(n_patches))
+        print(f"h = {h}, w = {w}")
+        x = x.contiguous().view(B, hidden, h, w)
+        print(f"After reshaping, x.shape: {x.shape}")
+        x = self.conv_more(x)
+
+        if features is not None:
+            skip_features = [features[i] for i in [3, 2, 1]]  # Adjust indices based on your model
+        else:
+            skip_features = [None, None, None]
+
+        for i, decoder_block in enumerate(self.blocks):
+            if i < self.config["n_skip"]:
+                skip = skip_features[i]
+                print(f"Decoder block {i}: x.shape = {x.shape}, skip.shape = {skip.shape}")
+            else:
+                skip = None
+                print(f"Decoder block {i}: x.shape = {x.shape}, skip = None")
+            x = decoder_block(x, skip=skip)
+        return x

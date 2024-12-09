@@ -3,16 +3,15 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
-from decoder_models import DeepLabV3Plus,UNetDecoder,DeepLabV3, ASPPBlock
+from decoder_models import DeepLabV3Plus,UNetDecoder,DeepLabV3, ASPPBlock,TransUNetDecoder
 from encoder_models import (
     resnet18,
     resnet34,
     resnet50,
     resnet101,
     efficientnet_v2_m,
-    resnet34_unet_encoder
+    resnet34_unet_encoder,TransUNetTransformer
 )
-
 class ResNet34UNet(nn.Module):
     def __init__(self, num_classes, pretrained=True):
         super(ResNet34UNet, self).__init__()
@@ -287,3 +286,32 @@ class EfficientNetLDeepLabV3(nn.Module):
         x = self.segmenter(encoded_features)
         x = F.interpolate(x, size=input_shape, mode="bilinear", align_corners=False)
         return x
+
+
+class TransUNet(nn.Module):
+    def __init__(self, config, img_size, num_classes, vis=False):
+        super(TransUNet, self).__init__()
+        self.transformer = TransUNetTransformer(config, img_size, vis)
+        self.decoder = TransUNetDecoder(config)
+        self.segmentation_head = nn.Conv2d(
+            in_channels=config['decoder_channels'][-1],
+            out_channels=num_classes,
+            kernel_size=1
+        )
+        self.config = config
+
+    def forward(self, x):
+        input_shape = x.shape[2:]
+        if x.size(1) == 1:
+            x = x.repeat(1, 3, 1, 1)  # Convert grayscale to RGB
+        x, attn_weights, features = self.transformer(x)
+        print('haaaa',x)
+        x = x[:, 1:, :]  # Exclude cls_token
+        print(x)
+        x = self.decoder(x, features)
+        x = self.segmentation_head(x)
+        x = F.interpolate(x, size=input_shape, mode='bilinear', align_corners=False)
+        return x
+    def load_from(self, weights):
+        self.transformer.load_from(weights)
+        #self.decoder.load_from(weights)
