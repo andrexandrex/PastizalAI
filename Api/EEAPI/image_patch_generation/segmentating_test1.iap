@@ -1,0 +1,63 @@
+{
+  "classes": [
+    {
+      "name": "oil spill",
+      "color": "#ff0000"
+    },
+    {
+      "name": "land",
+      "color": "#00ff00"
+    }
+  ],
+  "images": [
+    {
+      "file_name": "7_1_2015-03-16_S1_GRD_VV_8bit.tif",
+      "width": 5567,
+      "height": 5567,
+      "is_multi_slice": true,
+      "slices": [
+        {
+          "name": "7_1_2015-03-16_S1_GRD_VV_8bit",
+          "annotations": {
+            "oil spill": []
+          }
+        }
+      ],
+      "dimensions": [
+        "H",
+        "W"
+      ],
+      "shape": [
+        5567,
+        5567
+      ]
+    },
+    {
+      "file_name": "7_2_2015-03-25_S1_GRD_VV_8bit.tif",
+      "width": 5567,
+      "height": 5567,
+      "is_multi_slice": true,
+      "slices": [
+        {
+          "name": "7_2_2015-03-25_S1_GRD_VV_8bit",
+          "annotations": {}
+        }
+      ],
+      "dimensions": [
+        "H",
+        "W"
+      ],
+      "shape": [
+        5567,
+        5567
+      ]
+    }
+  ],
+  "image_paths": {
+    "7_1_2015-03-16_S1_GRD_VV_8bit.tif": "D:/AndreJuarez/Code_OilSpill/Apis/EEAPI/image_patch_generation\\images\\7_1_2015-03-16_S1_GRD_VV_8bit.tif",
+    "7_2_2015-03-25_S1_GRD_VV_8bit.tif": "D:/AndreJuarez/Code_OilSpill/Apis/EEAPI/image_patch_generation\\images\\7_2_2015-03-25_S1_GRD_VV_8bit.tif"
+  },
+  "notes": "",
+  "creation_date": "2025-04-17 16:25:58",
+  "last_modified": "2025-04-17T23:40:27.979600"
+}
