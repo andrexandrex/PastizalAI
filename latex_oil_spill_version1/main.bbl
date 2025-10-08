@@ -1,0 +1,799 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{chenTransUNetTransformersMake2021}{online}{}{}
+      \name{author}{9}{}{%
+        {{un=1,uniquepart=given,hash=09f91571373341723fe99201f5fe0923}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Jieneng},
+           giveni={J\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=ef5ff599b344efe1e88f64ef083047cd}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={Yongyi},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=efaf6458176dd432ecb6f9e814d1af43}{%
+           family={Yu},
+           familyi={Y\bibinitperiod},
+           given={Qihang},
+           giveni={Q\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0f6bea11e63143b3ee938260496fa2fd}{%
+           family={Luo},
+           familyi={L\bibinitperiod},
+           given={Xiangde},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=91a5d92d019d0302b9a66aa6ba4b1bc8}{%
+           family={Adeli},
+           familyi={A\bibinitperiod},
+           given={Ehsan},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5c786d9afb3cf178271120f1fd926d21}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Yan},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c88c438fdf38473dd68166ad17a42018}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={Le},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7e4cdd805dbfc99ccee4571698195692}{%
+           family={Yuille},
+           familyi={Y\bibinitperiod},
+           given={Alan\bibnamedelima L.},
+           giveni={A\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a148a3c0a883fe5b1f247769b33e63c5}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Yuyin},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{1416eea6f3087bf3e6e413d226f75dff}
+      \strng{fullhash}{eeb9a7d34a2205a10358b8b516548409}
+      \strng{fullhashraw}{eeb9a7d34a2205a10358b8b516548409}
+      \strng{bibnamehash}{1416eea6f3087bf3e6e413d226f75dff}
+      \strng{authorbibnamehash}{1416eea6f3087bf3e6e413d226f75dff}
+      \strng{authornamehash}{1416eea6f3087bf3e6e413d226f75dff}
+      \strng{authorfullhash}{eeb9a7d34a2205a10358b8b516548409}
+      \strng{authorfullhashraw}{eeb9a7d34a2205a10358b8b516548409}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Medical image segmentation is an essential prerequisite for developing healthcare systems, especially for disease diagnosis and treatment planning. On various medical image segmentation tasks, the u-shaped architecture, also known as U-Net, has become the de-facto standard and achieved tremendous success. However, due to the intrinsic locality of convolution operations, U-Net generally demonstrates limitations in explicitly modeling long-range dependency. Transformers, designed for sequence-to-sequence prediction, have emerged as alternative architectures with innate global self-attention mechanisms, but can result in limited localization abilities due to insufficient low-level details. In this paper, we propose TransUNet, which merits both Transformers and U-Net, as a strong alternative for medical image segmentation. On one hand, the Transformer encodes tokenized image patches from a convolution neural network (CNN) feature map as the input sequence for extracting global contexts. On the other hand, the decoder upsamples the encoded features which are then combined with the high-resolution CNN feature maps to enable precise localization. We argue that Transformers can serve as strong encoders for medical image segmentation tasks, with the combination of U-Net to enhance finer details by recovering localized spatial information. TransUNet achieves superior performances to various competing methods on different medical applications including multi-organ segmentation and cardiac segmentation. Code and models are available at https://github.com/Beckschen/TransUNet.}
+      \field{day}{8}
+      \field{eprinttype}{arXiv}
+      \field{month}{2}
+      \field{pubstate}{prepublished}
+      \field{shorttitle}{{{TransUNet}}}
+      \field{title}{{{TransUNet}}: {{Transformers Make Strong Encoders}} for {{Medical Image Segmentation}}}
+      \field{urlday}{27}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.2102.04306
+      \endverb
+      \verb{eprint}
+      \verb 2102.04306
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\user\\Zotero\\storage\\LAWG6Q3P\\Chen et al. - 2021 - TransUNet Transformers Make Strong Encoders for Medical Image Segmentation.pdf;C\:\\Users\\user\\Zotero\\storage\\4A5MI98B\\2102.html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2102.04306
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2102.04306
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,notion}
+    \endentry
+    \entry{chenDeepLabSemanticImage2017}{online}{}{}
+      \name{author}{5}{}{%
+        {{un=1,uniquepart=given,hash=9dddfcfd529634a150ee38ee5c0203d7}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Liang-Chieh},
+           giveni={L\bibinithyphendelim C\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=f0b33c7651e3d639b1e91032533984f9}{%
+           family={Papandreou},
+           familyi={P\bibinitperiod},
+           given={George},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c2ab5c413745093191463102e54727f3}{%
+           family={Kokkinos},
+           familyi={K\bibinitperiod},
+           given={Iasonas},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d01ba1edf5711066e4d420d9df8d8f43}{%
+           family={Murphy},
+           familyi={M\bibinitperiod},
+           given={Kevin},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7e4cdd805dbfc99ccee4571698195692}{%
+           family={Yuille},
+           familyi={Y\bibinitperiod},
+           given={Alan\bibnamedelima L.},
+           giveni={A\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{5b195b34f54d3e071b82ddb71e157be1}
+      \strng{fullhash}{c0db6e31d214cb90a9557639a905cee8}
+      \strng{fullhashraw}{c0db6e31d214cb90a9557639a905cee8}
+      \strng{bibnamehash}{5b195b34f54d3e071b82ddb71e157be1}
+      \strng{authorbibnamehash}{5b195b34f54d3e071b82ddb71e157be1}
+      \strng{authornamehash}{5b195b34f54d3e071b82ddb71e157be1}
+      \strng{authorfullhash}{c0db6e31d214cb90a9557639a905cee8}
+      \strng{authorfullhashraw}{c0db6e31d214cb90a9557639a905cee8}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{In this work we address the task of semantic image segmentation with Deep Learning and make three main contributions that are experimentally shown to have substantial practical merit. First, we highlight convolution with upsampled filters, or 'atrous convolution', as a powerful tool in dense prediction tasks. Atrous convolution allows us to explicitly control the resolution at which feature responses are computed within Deep Convolutional Neural Networks. It also allows us to effectively enlarge the field of view of filters to incorporate larger context without increasing the number of parameters or the amount of computation. Second, we propose atrous spatial pyramid pooling (ASPP) to robustly segment objects at multiple scales. ASPP probes an incoming convolutional feature layer with filters at multiple sampling rates and effective fields-of-views, thus capturing objects as well as image context at multiple scales. Third, we improve the localization of object boundaries by combining methods from DCNNs and probabilistic graphical models. The commonly deployed combination of max-pooling and downsampling in DCNNs achieves invariance but has a toll on localization accuracy. We overcome this by combining the responses at the final DCNN layer with a fully connected Conditional Random Field (CRF), which is shown both qualitatively and quantitatively to improve localization performance. Our proposed "DeepLab" system sets the new state-of-art at the PASCAL VOC-2012 semantic image segmentation task, reaching 79.7\% mIOU in the test set, and advances the results on three other datasets: PASCAL-Context, PASCAL-Person-Part, and Cityscapes. All of our code is made publicly available online.}
+      \field{day}{12}
+      \field{eprinttype}{arXiv}
+      \field{month}{5}
+      \field{pubstate}{prepublished}
+      \field{shorttitle}{{{DeepLab}}}
+      \field{title}{{{DeepLab}}: {{Semantic Image Segmentation}} with {{Deep Convolutional Nets}}, {{Atrous Convolution}}, and {{Fully Connected CRFs}}}
+      \field{urlday}{3}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{year}{2017}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb 1606.00915
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\user\\Zotero\\storage\\QE6RAEMH\\Chen et al. - 2017 - DeepLab Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Con.pdf;C\:\\Users\\user\\Zotero\\storage\\83DU3YNT\\1606.html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1606.00915
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1606.00915
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,notion}
+    \endentry
+    \entry{deandradeImprovedSegmentationExtreme2024}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=72fdde30c753d8c2bec0167d763c077b}{%
+           family={De\bibnamedelima Andrade},
+           familyi={D\bibinitperiod\bibinitdelim A\bibinitperiod},
+           given={Eduardo\bibnamedelima Rocha},
+           giveni={E\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=03994597444d5f488a5e42dad35d85da}{%
+           family={Boccato},
+           familyi={B\bibinitperiod},
+           given={Levy},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \strng{fullhash}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \strng{fullhashraw}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \strng{bibnamehash}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \strng{authorbibnamehash}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \strng{authornamehash}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \strng{authorfullhash}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \strng{authorfullhashraw}{7db8f2b8990c6df6e6fd8bf6cbd57604}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{With the advent of modern convolutional neural networks many computer vision tasks, including semantic segmentation, have witnessed great improvements. However, in real applications, a segmentation network may also need to cope with images with no associated object of interest, i.e., all pixels belong to the background class. These empty images promote stark imbalance between classes in the dataset, which may hinder the model’s performance. In this work, we analyze this particular scenario and its implications. Also, we investigate the two most common solutions: single-stage segmentation and two-stage classification-segmentation pipelines. As our main contribution, we propose a set of modifications based on semi-global context and attention mechanisms that can be applied on the decoder of most state-of-the-art segmentation networks, which is specially-tailored to tackle the problem of semantic segmentation with full background images. In addition, we propose an auxiliary segmentation loss for foreground pixels, which brings additional improvements in IoU for extreme class-unbalanced cases and helps to stabilize the training process. Our proposals are comprehensively evaluated on two datasets of different characteristics, demonstrating consistent IoU gains of up to 15 and 25\% against its best single- and two-stage competitors, respectively. Finally, we perform ablation studies to better understand the underlying mechanisms of the proposed approach. The source code will be available at https://github.com/arc144/improved- seg- background- images.}
+      \field{issn}{09574174}
+      \field{journaltitle}{Expert Systems with Applications}
+      \field{langid}{english}
+      \field{month}{11}
+      \field{shortjournal}{Expert Systems with Applications}
+      \field{title}{Improved Segmentation under Extreme Imbalance towards Full Background Images}
+      \field{urlday}{8}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{volume}{253}
+      \field{year}{2024}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{124273}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.eswa.2024.124273
+      \endverb
+      \verb{file}
+      \verb C:\Users\user\Zotero\storage\3NE2TLRZ\De Andrade y Boccato - 2024 - Improved segmentation under extreme imbalance towards full background images.pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0957417424011394
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0957417424011394
+      \endverb
+    \endentry
+    \entry{heDeepResidualLearning2015}{online}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=6b4b60e909e78633945f3f9c9dc83e01}{%
+           family={He},
+           familyi={H\bibinitperiod},
+           given={Kaiming},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5e72bc22dbcf0984c6d113d280e36990}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Xiangyu},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bb295293acacd54387339079ebbe4ead}{%
+           family={Ren},
+           familyi={R\bibinitperiod},
+           given={Shaoqing},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f85751488058842b5777c7b4074077b5}{%
+           family={Sun},
+           familyi={S\bibinitperiod},
+           given={Jian},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6edb98fe38401d2fe4a026f5ce6e8451}
+      \strng{fullhash}{42c4b52dc3a62cebabbc11c73e1afb53}
+      \strng{fullhashraw}{42c4b52dc3a62cebabbc11c73e1afb53}
+      \strng{bibnamehash}{6edb98fe38401d2fe4a026f5ce6e8451}
+      \strng{authorbibnamehash}{6edb98fe38401d2fe4a026f5ce6e8451}
+      \strng{authornamehash}{6edb98fe38401d2fe4a026f5ce6e8451}
+      \strng{authorfullhash}{42c4b52dc3a62cebabbc11c73e1afb53}
+      \strng{authorfullhashraw}{42c4b52dc3a62cebabbc11c73e1afb53}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Deeper neural networks are more difficult to train. We present a residual learning framework to ease the training of networks that are substantially deeper than those used previously. We explicitly reformulate the layers as learning residual functions with reference to the layer inputs, instead of learning unreferenced functions. We provide comprehensive empirical evidence showing that these residual networks are easier to optimize, and can gain accuracy from considerably increased depth. On the ImageNet dataset we evaluate residual nets with a depth of up to 152 layers---8x deeper than VGG nets but still having lower complexity. An ensemble of these residual nets achieves 3.57\% error on the ImageNet test set. This result won the 1st place on the ILSVRC 2015 classification task. We also present analysis on CIFAR-10 with 100 and 1000 layers. The depth of representations is of central importance for many visual recognition tasks. Solely due to our extremely deep representations, we obtain a 28\% relative improvement on the COCO object detection dataset. Deep residual nets are foundations of our submissions to ILSVRC \& COCO 2015 competitions, where we also won the 1st places on the tasks of ImageNet detection, ImageNet localization, COCO detection, and COCO segmentation.}
+      \field{day}{10}
+      \field{eprintclass}{cs}
+      \field{eprinttype}{arXiv}
+      \field{month}{12}
+      \field{pubstate}{prepublished}
+      \field{title}{Deep {{Residual Learning}} for {{Image Recognition}}}
+      \field{urlday}{29}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2015}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.1512.03385
+      \endverb
+      \verb{eprint}
+      \verb 1512.03385
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\user\\Zotero\\storage\\BG44URUG\\He et al. - 2015 - Deep Residual Learning for Image Recognition.pdf;C\:\\Users\\user\\Zotero\\storage\\ISLVU4AD\\1512.html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1512.03385
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1512.03385
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,notion}
+    \endentry
+    \entry{krestenitisOilSpillIdentification2019}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=264856c77e33331254a93a9ecfc293e6}{%
+           family={Krestenitis},
+           familyi={K\bibinitperiod},
+           given={Marios},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=87078eb1c8c560e1264ee26ac6826354}{%
+           family={Orfanidis},
+           familyi={O\bibinitperiod},
+           given={Georgios},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1ce132f52ecda30e2a0d56cd3e6da821}{%
+           family={Ioannidis},
+           familyi={I\bibinitperiod},
+           given={Konstantinos},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6c3f2460c9c4e35a91bc7d61f40adf47}{%
+           family={Avgerinakis},
+           familyi={A\bibinitperiod},
+           given={Konstantinos},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=45becfb0995da893dea48fffbc5c910b}{%
+           family={Vrochidis},
+           familyi={V\bibinitperiod},
+           given={Stefanos},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=50c1c75c0291ee56b3303853d6487aa7}{%
+           family={Kompatsiaris},
+           familyi={K\bibinitperiod},
+           given={Ioannis},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6fb1e1b416d1737319b342d6e0955259}
+      \strng{fullhash}{9019f9cf9f08236b0c5c92fcc31f7e35}
+      \strng{fullhashraw}{9019f9cf9f08236b0c5c92fcc31f7e35}
+      \strng{bibnamehash}{6fb1e1b416d1737319b342d6e0955259}
+      \strng{authorbibnamehash}{6fb1e1b416d1737319b342d6e0955259}
+      \strng{authornamehash}{6fb1e1b416d1737319b342d6e0955259}
+      \strng{authorfullhash}{9019f9cf9f08236b0c5c92fcc31f7e35}
+      \strng{authorfullhashraw}{9019f9cf9f08236b0c5c92fcc31f7e35}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Oil spill is considered one of the main threats to marine and coastal environments. Efficient monitoring and early identification of oil slicks are vital for the corresponding authorities to react expediently, confine the environmental pollution and avoid further damage. Synthetic aperture radar (SAR) sensors are commonly used for this objective due to their capability for operating efficiently regardless of the weather and illumination conditions. Black spots probably related to oil spills can be clearly captured by SAR sensors, yet their discrimination from look-alikes poses a challenging objective. A variety of different methods have been proposed to automatically detect and classify these dark spots. Most of them employ custom-made datasets posing results as non-comparable. Moreover, in most cases, a single label is assigned to the entire SAR image resulting in a difficulties when manipulating complex scenarios or extracting further information from the depicted content. To overcome these limitations, semantic segmentation with deep convolutional neural networks (DCNNs) is proposed as an efficient approach. Moreover, a publicly available SAR image dataset is introduced, aiming to consist a benchmark for future oil spill detection methods. The presented dataset is employed to review the performance of well-known DCNN segmentation models in the specific task. DeepLabv3+ presented the best performance, in terms of test set accuracy and related inference time. Furthermore, the complex nature of the specific problem, especially due to the challenging task of discriminating oil spills and look-alikes is discussed and illustrated, utilizing the introduced dataset. Results imply that DCNN segmentation models, trained and evaluated on the provided dataset, can be utilized to implement efficient oil spill detectors. Current work is expected to contribute significantly to the future research activity regarding oil spill identification and SAR image processing.}
+      \field{day}{26}
+      \field{issn}{2072-4292}
+      \field{journaltitle}{Remote Sensing}
+      \field{langid}{english}
+      \field{month}{7}
+      \field{number}{15}
+      \field{shortjournal}{Remote Sensing}
+      \field{title}{Oil {{Spill Identification}} from {{Satellite Images Using Deep Neural Networks}}}
+      \field{urlday}{3}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{volume}{11}
+      \field{year}{2019}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{1762}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/rs11151762
+      \endverb
+      \verb{file}
+      \verb C:\Users\user\Zotero\storage\JZBBTVQA\Krestenitis et al. - 2019 - Oil Spill Identification from Satellite Images Using Deep Neural Networks.pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.mdpi.com/2072-4292/11/15/1762
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/2072-4292/11/15/1762
+      \endverb
+      \keyw{notion}
+    \endentry
+    \entry{mogollonREPSOLOilSpill2023}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=9201262ed3c4b323b14c77f9944c2ca6}{%
+           family={Mogollón},
+           familyi={M\bibinitperiod},
+           given={Rodrigo},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2a150a7c42a6e788852acfba024866c6}{%
+           family={Arellano},
+           familyi={A\bibinitperiod},
+           given={Cinthia},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=09e8b858586206310ae217dd25a9989b}{%
+           family={Villegas},
+           familyi={V\bibinitperiod},
+           given={Piero},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a4a95ffc5cc39140087f752d66c4d849}{%
+           family={Espinoza-Morriberón},
+           familyi={E\bibinithyphendelim M\bibinitperiod},
+           given={Dante},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=08bafaefe51eabf44cae9da19ad83428}{%
+           family={Tam},
+           familyi={T\bibinitperiod},
+           given={Jorge},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{430288a33af1a2885cebb7b34f7d5dc0}
+      \strng{fullhash}{c2cbd4c58276373c89fd79e20c0081b8}
+      \strng{fullhashraw}{c2cbd4c58276373c89fd79e20c0081b8}
+      \strng{bibnamehash}{430288a33af1a2885cebb7b34f7d5dc0}
+      \strng{authorbibnamehash}{430288a33af1a2885cebb7b34f7d5dc0}
+      \strng{authornamehash}{430288a33af1a2885cebb7b34f7d5dc0}
+      \strng{authorfullhash}{c2cbd4c58276373c89fd79e20c0081b8}
+      \strng{authorfullhashraw}{c2cbd4c58276373c89fd79e20c0081b8}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{This study simulates the spillage of 1460 metric tons of oil that occurred in January 2022 off La Pampilla Refinery, in central Perú. The oil slick was predominantly displaced northward along the coastline, driven by prevailing currents and winds in the region. The weathering analysis revealed that the removal of oil was mainly due to evaporation (28\%) and beaching processes (70\%) within 96 h after the initial release. The coastal areas spanning from Ventanilla to Punta Chancay experienced significant impacts from the oil spill, representing 96\% of the total affected coastal extent. Specifically, Ventanilla and Santa Rosa Beaches and the National Reserve System of Islands were heavily impacted during the first 24 h, while the surroundings of Anco´n Bay, Aucallama and Pasamayo beaches were affected after two days. This modeling case study provides valuable insights into the fate and transport of the Repsol oil spill.}
+      \field{issn}{0025326X}
+      \field{journaltitle}{Marine Pollution Bulletin}
+      \field{langid}{english}
+      \field{month}{9}
+      \field{shortjournal}{Marine Pollution Bulletin}
+      \field{shorttitle}{{{REPSOL}} Oil Spill off {{Central Perú}} in {{January}} 2022}
+      \field{title}{{{REPSOL}} Oil Spill off {{Central Perú}} in {{January}} 2022: {{A}} Modeling Case Study}
+      \field{urlday}{3}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{volume}{194}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{115282}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.marpolbul.2023.115282
+      \endverb
+      \verb{file}
+      \verb C:\Users\user\Zotero\storage\GIEXYLAS\Mogollón et al. - 2023 - REPSOL oil spill off Central Perú in January 2022 A modeling case study.pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0025326X23007166
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0025326X23007166
+      \endverb
+      \keyw{notion}
+    \endentry
+    \entry{pratapFineArtFinetuning2025}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=0fa04cb14e1f8bca47ee3ec4ff08669e}{%
+           family={Pratap},
+           familyi={P\bibinitperiod},
+           given={Samar},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=9d67314e9b541d3b46e8379f3d71f25c}{%
+           family={Aranha},
+           familyi={A\bibinitperiod},
+           given={Alston\bibnamedelima Richard},
+           giveni={A\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e406146ab756e8c9ac0f0d01fe729860}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={Divyanshu},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c0bcd2108202c18ffb9a48b1cdb09a30}{%
+           family={Malhotra},
+           familyi={M\bibinitperiod},
+           given={Gautam},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=91dbf6eae850711de405fc78bdd7bf81}{%
+           family={Iyer},
+           familyi={I\bibinitperiod},
+           given={Anantharaman\bibnamedelimb Palacode\bibnamedelima Narayana},
+           giveni={A\bibinitperiod\bibinitdelim P\bibinitperiod\bibinitdelim N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b408c4e31db6dc37020118d6d1486d90}{%
+           family={S.s.},
+           familyi={S\bibinitperiod},
+           given={Shylaja},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{4364526ededd54496dd17d24b387a5b1}
+      \strng{fullhash}{7ba4c6c9c8ad1a1d0d5d519fa7fd617a}
+      \strng{fullhashraw}{7ba4c6c9c8ad1a1d0d5d519fa7fd617a}
+      \strng{bibnamehash}{4364526ededd54496dd17d24b387a5b1}
+      \strng{authorbibnamehash}{4364526ededd54496dd17d24b387a5b1}
+      \strng{authornamehash}{4364526ededd54496dd17d24b387a5b1}
+      \strng{authorfullhash}{7ba4c6c9c8ad1a1d0d5d519fa7fd617a}
+      \strng{authorfullhashraw}{7ba4c6c9c8ad1a1d0d5d519fa7fd617a}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Transformer-based models have consistently demonstrated superior accuracy compared to various traditional models across a range of downstream tasks. However, due to their large nature, training or fine-tuning them for specific tasks has heavy computational and memory demands. This causes the creation of specialized transformer-based models to be almost impossible in the generally present constrained scenarios. To tackle this issue and to make these large models more accessible, a plethora of techniques have been developed. In this study, we will be reviewing the types of techniques developed, their impacts and benefits concerning performance and resource usage along with the latest developments in the domain. We have broadly categorized these techniques into six key areas: Changes in Training Method, Changes in Adapter, Quantization, Parameter Selection, Mixture of Experts, and Application based methods. We collated the results of various techniques on common benchmarks and also evaluated their performance on different datasets and base models.}
+      \field{day}{1}
+      \field{issn}{2949-7191}
+      \field{journaltitle}{Natural Language Processing Journal}
+      \field{month}{6}
+      \field{shortjournal}{Natural Language Processing Journal}
+      \field{shorttitle}{The Fine Art of Fine-Tuning}
+      \field{title}{The Fine Art of Fine-Tuning: {{A}} Structured Review of Advanced {{LLM}} Fine-Tuning Techniques}
+      \field{urlday}{30}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{volume}{11}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{100144}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.nlp.2025.100144
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\user\\Zotero\\storage\\XTCTSTWB\\Pratap et al. - 2025 - The fine art of fine-tuning A structured review of advanced LLM fine-tuning techniques.pdf;C\:\\Users\\user\\Zotero\\storage\\Q7NTY3PK\\S2949719125000202.html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S2949719125000202
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S2949719125000202
+      \endverb
+      \keyw{Adapter,FFT,LLM,LoRA,MoE,notion,PEFT,Quantization}
+    \endentry
+    \entry{ronnebergerUNetConvolutionalNetworks2015a}{online}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=8e46da9de9e53ea5d37089897d69cdd9}{%
+           family={Ronneberger},
+           familyi={R\bibinitperiod},
+           given={Olaf},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=168e84ce3582cbc6bac5e2ebc3ef8442}{%
+           family={Fischer},
+           familyi={F\bibinitperiod},
+           given={Philipp},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b452a32296958371572717940f900884}{%
+           family={Brox},
+           familyi={B\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{f23ccc5160c62c7866172335b2c76e11}
+      \strng{fullhash}{f23ccc5160c62c7866172335b2c76e11}
+      \strng{fullhashraw}{f23ccc5160c62c7866172335b2c76e11}
+      \strng{bibnamehash}{f23ccc5160c62c7866172335b2c76e11}
+      \strng{authorbibnamehash}{f23ccc5160c62c7866172335b2c76e11}
+      \strng{authornamehash}{f23ccc5160c62c7866172335b2c76e11}
+      \strng{authorfullhash}{f23ccc5160c62c7866172335b2c76e11}
+      \strng{authorfullhashraw}{f23ccc5160c62c7866172335b2c76e11}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{There is large consent that successful training of deep networks requires many thousand annotated training samples. In this paper, we present a network and training strategy that relies on the strong use of data augmentation to use the available annotated samples more efficiently. The architecture consists of a contracting path to capture context and a symmetric expanding path that enables precise localization. We show that such a network can be trained end-to-end from very few images and outperforms the prior best method (a sliding-window convolutional network) on the ISBI challenge for segmentation of neuronal structures in electron microscopic stacks. Using the same network trained on transmitted light microscopy images (phase contrast and DIC) we won the ISBI cell tracking challenge 2015 in these categories by a large margin. Moreover, the network is fast. Segmentation of a 512x512 image takes less than a second on a recent GPU. The full implementation (based on Caffe) and the trained networks are available at http://lmb.informatik.uni-freiburg.de/people/ronneber/u-net .}
+      \field{day}{18}
+      \field{eprintclass}{cs}
+      \field{eprinttype}{arXiv}
+      \field{month}{5}
+      \field{pubstate}{prepublished}
+      \field{shorttitle}{U-{{Net}}}
+      \field{title}{U-{{Net}}: {{Convolutional Networks}} for {{Biomedical Image Segmentation}}}
+      \field{urlday}{1}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{year}{2015}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.1505.04597
+      \endverb
+      \verb{eprint}
+      \verb 1505.04597
+      \endverb
+      \verb{file}
+      \verb C:\Users\user\Zotero\storage\8WY8BJNL\Ronneberger et al. - 2015 - U-Net Convolutional Networks for Biomedical Image Segmentation.pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1505.04597
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1505.04597
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,notion}
+    \endentry
+    \entry{satyanarayanaOilSpillSegmentation2023}{online}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=7c2635091338a91f0d503f37f047ad9f}{%
+           family={Satyanarayana},
+           familyi={S\bibinitperiod},
+           given={Abhishek\bibnamedelima Ramanathapura},
+           giveni={A\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6e8bcbafe97abb306e4ffc74b0b126d5}{%
+           family={Dhali},
+           familyi={D\bibinitperiod},
+           given={Maruf\bibnamedelima A.},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{2fd7a534fa669570ede0d8818753f708}
+      \strng{fullhash}{2fd7a534fa669570ede0d8818753f708}
+      \strng{fullhashraw}{2fd7a534fa669570ede0d8818753f708}
+      \strng{bibnamehash}{2fd7a534fa669570ede0d8818753f708}
+      \strng{authorbibnamehash}{2fd7a534fa669570ede0d8818753f708}
+      \strng{authornamehash}{2fd7a534fa669570ede0d8818753f708}
+      \strng{authorfullhash}{2fd7a534fa669570ede0d8818753f708}
+      \strng{authorfullhashraw}{2fd7a534fa669570ede0d8818753f708}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Crude oil is an integral component of the modern world economy. With the growing demand for crude oil due to its widespread applications, accidental oil spills are unavoidable. Even though oil spills are in and themselves difficult to clean up, the first and foremost challenge is to detect spills. In this research, the authors test the feasibility of deep encoder-decoder models that can be trained effectively to detect oil spills. The work compares the results from several segmentation models on high dimensional satellite Synthetic Aperture Radar (SAR) image data. Multiple combinations of models are used in running the experiments. The best-performing model is the one with the ResNet-50 encoder and DeepLabV3+ decoder. It achieves a mean Intersection over Union (IoU) of 64.868\% and a class IoU of 61.549\% for the "oil spill" class when compared with the current benchmark model, which achieved a mean IoU of 65.05\% and a class IoU of 53.38\% for the "oil spill" class.}
+      \field{day}{2}
+      \field{eprinttype}{arXiv}
+      \field{month}{5}
+      \field{pubstate}{prepublished}
+      \field{title}{Oil {{Spill Segmentation}} Using {{Deep Encoder-Decoder}} Models}
+      \field{urlday}{3}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb 2305.01386
+      \endverb
+      \verb{file}
+      \verb C\:\\Users\\user\\Zotero\\storage\\NDBRYGFV\\Satyanarayana y Dhali - 2023 - Oil Spill Segmentation using Deep Encoder-Decoder models.pdf;C\:\\Users\\user\\Zotero\\storage\\8MD24XIL\\2305.html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2305.01386
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2305.01386
+      \endverb
+      \keyw{Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition,notion}
+    \endentry
+    \entry{zhuOilSpillContextual2022}{article}{}{}
+      \name{author}{8}{}{%
+        {{un=0,uniquepart=base,hash=1b10e74c17bd9e974cca2f051c594738}{%
+           family={Zhu},
+           familyi={Z\bibinitperiod},
+           given={Qiqi},
+           giveni={Q\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=18566afbde4f191273ae6d3f03c6704b}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Yanan},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5a14a2fa7685384be4b9c50212085af9}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Ziqi},
+           giveni={Z\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c65ff94675b9451c7b6d4cc8252dd7e4}{%
+           family={Yan},
+           familyi={Y\bibinitperiod},
+           given={Xiaorui},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=db84c386cfb318a58d0669f471ae11f8}{%
+           family={Guan},
+           familyi={G\bibinitperiod},
+           given={Qingfeng},
+           giveni={Q\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e771ed4ab054723aeea3a83cb2975a53}{%
+           family={Zhong},
+           familyi={Z\bibinitperiod},
+           given={Yanfei},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=dccf09c2c0831936acd93af0130cb2e0}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Liangpei},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=90a91370370fbfb0486065f9d8111371}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Deren},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{581a8ffbe7a1a3b278681937768f88d7}
+      \strng{fullhash}{808defdbc1c10dac78c532b466c05fb4}
+      \strng{fullhashraw}{808defdbc1c10dac78c532b466c05fb4}
+      \strng{bibnamehash}{581a8ffbe7a1a3b278681937768f88d7}
+      \strng{authorbibnamehash}{581a8ffbe7a1a3b278681937768f88d7}
+      \strng{authornamehash}{581a8ffbe7a1a3b278681937768f88d7}
+      \strng{authorfullhash}{808defdbc1c10dac78c532b466c05fb4}
+      \strng{authorfullhashraw}{808defdbc1c10dac78c532b466c05fb4}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Oil spills have caused serious harm to the marine environment. Remote sensing technology is one of the important tools for marine environment monitoring. Synthetic aperture radar (SAR) has become an important technology for detecting marine pollution. Identifying dark spots is essential for oil spill detection based on SAR images. Dark spots’ detection can be achieved using image segmentation techniques. However, natural phenomena, such as waves and currents, can also cause dark spots, resulting in consistently uneven intensity, high noise, and blurred boundaries in oil spill images. In addition, existing oil spill detection models often perform well for large targets but have poor detection accuracy for small targets. To solve the above problems, the oil spill contextual and boundary-supervised detection network (CBD-Net) is proposed to extract refined oil spill regions by fusing multiscale features. To improve the internal consistency of oil spill regions, the spatial and channel squeeze excitation (scSE) block is introduced. In CBD-Net, boundary details are enhanced with optimized edge supervision. In addition, a manually labeled dataset is proposed, Deep-SAR Oil Spill (SOS) dataset, aiming to solve the problem of insufficient existing oil spill detection dataset. Experimental results demonstrate that CBD-Net outperforms other comparative models and is able to extract robust and accurate oil spill regions from complex SAR images. The highest mIoU of 83.42\% and the highest F1 score of 87.87\% were achieved on the SOS dataset. The CBD-Net model proposed in this article can play a guiding role in the marine oil spill decision support system.}
+      \field{issn}{0196-2892, 1558-0644}
+      \field{journaltitle}{IEEE Transactions on Geoscience and Remote Sensing}
+      \field{langid}{english}
+      \field{shortjournal}{IEEE Trans. Geosci. Remote Sensing}
+      \field{title}{Oil {{Spill Contextual}} and {{Boundary-Supervised Detection Network Based}} on {{Marine SAR Images}}}
+      \field{urlday}{10}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{volume}{60}
+      \field{year}{2022}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{1\bibrangedash 10}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1109/TGRS.2021.3115492
+      \endverb
+      \verb{file}
+      \verb C:\Users\user\Zotero\storage\7KARK3UV\2021TGRS-Oil_Spill_Contextual_and_Boundary-Supervised_Detection_Network_Based_on_Marine_SAR_Images.pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://ieeexplore.ieee.org/document/9568691/
+      \endverb
+      \verb{url}
+      \verb https://ieeexplore.ieee.org/document/9568691/
+      \endverb
+      \keyw{notion}
+    \endentry
+  \enddatalist
+  \missing{chen}
+  \missing{dhariwal2021diffusion}
+  \missing{efsongEfficientMarineOil2018}
+  \missing{heusel2017ttur}
+  \missing{miyato2018spectral}
+  \missing{park2019spade}
+  \missing{tan2021inade}
+  \missing{yang2022diffsurvey}
+\endrefsection
+\endinput
+
