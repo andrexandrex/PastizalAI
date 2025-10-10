@@ -90,22 +90,18 @@ The initial stage of dataset construction involved compiling 66 documented oil s
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=1\textwidth]{figures/oil_spills_map_peru.png}
+    \includegraphics[width=1\textwidth]{figures/oil_spills_peru_2012_2024.png}
     \caption{Spatial distribution and volume classification of 66 oil spills recorded along the Peruvian coast from 2012 to 2022.}
     \label{fig:peru_spills_map}
 \end{figure}
-
-A total of 40 Sentinel-1 SAR images were ultimately selected from this set of events based on three criteria: (1) visual observability of the oil slick in the SAR image, (2) temporal proximity to the reported spill date (within 3–20 days, following \cite{mogollonREPSOLOilSpill2023}), and (3) availability and quality of satellite acquisition. These images span the period from 2014 to 2025 and were acquired from the Copernicus Sentinel-1 archive.
-
-From each selected image, non-overlapping patches of 512$\times$512 pixels were manually extracted around areas containing oil and other semantically relevant features (e.g., vessels, land, open sea). This patch-based strategy was adopted to mitigate class imbalance by avoiding excessive background pixels. A total of 2,132 patches were obtained, with 1,820 (approx. 85\%) used for training and 312 (15\%) for testing. The train-test split was applied at the image level to ensure semantic independence between sets.
-
-Table~\ref{tab:peruvian_selection} summarizes the 40 Sentinel-1 SAR scenes selected for the Peruvian coastal dataset, sorted chronologically by spill date. Each entry corresponds to a confirmed spill case, including its coordinates, SAR acquisition date, and delay in days (\textit{Δ Days}) between the incident and image capture.
-
-The number of extracted patches per image varies depending on the spill extent and visual clarity, aiming to maximize coverage of oil-related features while limiting background noise. This structured selection and labeling process ensures class balance, spatial diversity, and robustness in model training and evaluation.
+Figure X shows the spatial distribution of 67 reported oil spills (2012–2024) along the Peruvian coast, derived from OEFA and OSINERGMIN databases with the addition of the 2024 Lobitos spill (Piura). Bubble size represents reported discharge volume. Most incidents cluster around Talara–Paita in the north, Lima–Callao in the center, and Ilo–Tacna in the south
 
 
-\vspace{1em}
-Each row in the table represents a real-world spill case. The \textit{Δ Days} column highlights the critical time window between the spill incident and the satellite acquisition. The number of extracted patches per image reflects the spatial extent of relevant content while prioritizing oil spill regions and avoiding class imbalance.
+
+A total of 38 Sentinel-1 SAR images were ultimately selected from this set of events based on three criteria: (1) visual observability of the oil slick in the SAR image, (2) temporal proximity to the reported spill date (within 3–20 days, following \cite{mogollonREPSOLOilSpill2023}), and (3) availability and quality of satellite acquisition. These images span the period from 2014 to 2025 and were acquired from the Copernicus Sentinel-1 GRD mission with a size of 5569 x 5569 pixel resolution size.
+
+Table~\ref{tab:peruvian_selection} summarizes the 38 Sentinel-1 SAR scenes selected for the Peruvian coastal dataset, sorted chronologically by spill date. Each entry corresponds to a confirmed spill case, including its coordinates, SAR acquisition date, and delay in days (\textit{Δ Days}) between the incident and image capture.
+
 
 \subsection{Preprocessing}
 All images are radiometrically calibrated to $\sigma^0$, 
@@ -169,12 +165,8 @@ being washed out by vanilla normalization \cite{park2019spade}. INADE further sa
 modulation to increase diversity across objects of the same class \cite{tan2021inade}.
 The discriminator uses spectral normalization and a hinge loss to stabilize training \cite{miyato2018spectral},
 and we adopt Adam with TTUR-style learning rates \cite{heusel2017ttur}.
-We trained for 60 epochs on $512{\times}512$ crops with $D{:}G=1{:}1$, $\lambda_\text{feat}{=}10$,
-$\lambda_\text{VGG}{=}10$, and $\text{lr}{=}5{\times}10^{-5}$.
 While diffusion models can surpass GANs in sample quality, their iterative sampling cost renders them
 impractical for large-batch augmentation in our setting \cite{dhariwal2021diffusion, yang2022diffsurvey}.
-
-
 
 \subsection{MORP: Morphological Region Perturbation}
 \label{sec:morp}
@@ -193,15 +185,6 @@ MORP edits spill shapes in the label domain while preserving surrounding context
 (iii) detect boundary \emph{apices} via smoothed curvature peaks, and (iv) perform localized stochastic edits
 (bulge or wedge) along outward normals. The result is an augmented mask $\mathcal{L}^\star$ with realistic
 lobes/notches and plausible displacements (Algorithm~\ref{alg:morp}) that can be rendered into SAR-like geometry objects appearance.
-
-\paragraph{Defaults (replicable).}
-Unless stated otherwise, we use: $\theta \sim \mathcal{U}[-\pi,\pi)$, translation radius $r\!\sim\!\mathcal{U}[0,120]$\,px with random direction,
-$m{=}6$ apices/region, expansion prob.\ $p_{\mathrm{exp}}{=}0.6$, fan half-angle $\alpha{=}60^\circ$,
-$r_{\max}{=}50$\,px, $n_{\mathrm{rays}}{=}120$, Savitzky–Golay smoothing ($w{=}9$, $p{=}3$),
-peak-prominence at the 85th percentile of positive curvature with $\ge4$\,px spacing.
-Random seeds are fixed for determinism in ablations.
-
-
 
 
 \begin{algorithm}[H]
@@ -362,15 +345,6 @@ while INADE samples instance-level modulation to diversify shapes of the same cl
 
 
 
-
-
-\paragraph{Training details.}
-Unless stated, we train for 60 epochs on $512{\times}512$ crops using Adam with TTUR-style learning rates
-($D{:}G=1{:}1$, $\lambda_\text{feat}{=}10$, $\lambda_\text{VGG}{=}10$, $\text{lr}{=}5{\times}10^{-5}$),
-a spectrally normalized discriminator with hinge loss~\cite{miyato2018spectral,heusel2017ttur}.
-While diffusion models can exceed GANs in sample quality, their iterative sampling cost renders them impractical
-for large-batch augmentation in our setting~\cite{dhariwal2021diffusion,yang2022diffsurvey}.
-
 \subsection{Putting it together}
 Given a real mask $\mathcal{L}$, MORP produces $\mathcal{L}^\star$ (Stage~A), which conditions the generator
 to yield a synthetic SAR patch $x^\star$ (Stage~B). We pair $\{x^\star,\mathcal{L}^\star\}$ with real
@@ -383,23 +357,120 @@ MORP (shape edits) vs.\ synthesis (appearance) via controlled ablations.
 
 
 
-\subsubsection{Sampling Strategy}
 
+\clearpage
 \subsubsection{Training Details}
 \label{sec:training}
 
-All models are first trained from scratch on the Krestinin Mediterranean dataset, consisting of 4 962 non-overlapping 512 × 512 tiles, with 569 held out for test.  We then fine-tune on the Peruvian set (3640 train , 312 test).  Half of the patches extracted contains some portion of oil spill or look alike and the other half do not, this is because we want to make sure to reduce the false positive rate of imbalanced presence wise images \cite{deandradeImprovedSegmentationExtreme2024}. This train & test split is done by spill event (41 cases) (See Table~\ref{tab:peruvian_selection})  
+All models were first trained from scratch on the Mediterranean dataset of Krestenitis et al.~\cite{krestenitisOilSpillIdentification2019}, 
+which contains 4,962 overlapping $512\times512$ tiles, with 569 held out for testing. 
+We then fine-tuned the pretrained weights on the Peruvian dataset composed of 1,795 training and 218 testing patches 
+of the same spatial resolution. The split was performed at the \emph{event} level to prevent spatial or temporal leakage 
+between training and testing scenes (see Table~\ref{tab:peruvian_selection}). 
+Half of the patches extracted per scene contained some portion of oil spill or look-alike, 
+and the remaining half represented clean sea, ensuring a balanced exposure of positive and negative samples 
+to mitigate false positives under heavy class imbalance~\cite{deandradeImprovedSegmentationExtreme2024}.
 
-We optimize a composite loss   
+All models share the same input size, loss design, and data augmentations (Albumentations: horizontal/vertical flips, Gaussian noise, and 
+CoarseDropout up to eight holes of maximum size $32^2$ pixels). Training employed the AdamW optimizer 
+($\beta_1{=}0.9,\beta_2{=}0.999$, weight decay $10^{-4}$) with a batch size of 32.
+
+For the Mediterranean (source) domain, models were trained for 60~epochs with an initial learning rate 
+of $1\times10^{-4}$, using \textit{ReduceLROnPlateau} (factor~0.3, patience~5) and early stopping (patience~10). 
+The loss combined weighted cross-entropy and Dice terms:
 \[
-\mathcal{L} \;=\; \mathcal{L}_{\mathrm{WCE}} \;+\; \mathcal{L}_{\mathrm{Dice}},
-\]  
-where the weighted cross-entropy weight for class \(c\) is set proportional to the geometric mean of its pixel frequency over all training images.
+\mathcal{L}_{\text{src}} = \mathcal{L}_{\mathrm{WCE}} + \mathcal{L}_{\mathrm{Dice}},
+\]
+where the class weight $w_c$ in $\mathcal{L}_{\mathrm{WCE}}$ was set inversely proportional to the geometric mean 
+of the class pixel frequencies across all training images to compensate for the dominance of the sea class.  
 
-Training uses the Adam optimizer with initial learning rate \(\eta=1\times10^{-4}\), weight decay \(10^{-4}\), and batch size 32.  We pretrain for 60 epochs on the Krestinin data (4 962 tiles), applying on-the-fly augmentations via Albumentations: random horizontal and vertical flips, Gaussian noise, CoarseDropout (up to eight holes of size up to 32×32).
+For the Peruvian (target) domain, we fine-tuned each network for 40~epochs with an initial learning rate 
+of $2\times10^{-4}$ and adopted a more expressive composite loss function (Eq.~\ref{eq:loss_total}). 
+The best epoch was selected according to the mean Intersection-over-Union (mIoU) on the validation subset.
+
+\paragraph{Loss.}
+We minimize a multi-term objective that combines class-balanced cross-entropy, Focal-Tversky segmentation loss, 
+and targeted confusion penalties:
+\begin{equation}
+\label{eq:loss_total}
+ \mathcal{L}_{\text{real}}
+ = \lambda_{\mathrm{CE}}\,\mathcal{L}_{\mathrm{CB\mbox{-}CE}}
+ + \lambda_{\mathrm{FTL}}\,\mathcal{L}_{\mathrm{Focal\mbox{-}Tversky}}
+ + \lambda_{2\to1}\,\mathcal{P}_{2\to1}
+ + \lambda_{0\to2}\,\mathcal{P}_{0\to2},
+\end{equation}
+with $(\lambda_{\mathrm{CE}},\lambda_{\mathrm{FTL}},\lambda_{2\to1},\lambda_{0\to2})=(0.3,0.7,0.40,0.30)$.
+
+The first term, $\mathcal{L}_{\mathrm{CB\mbox{-}CE}}$, is cross-entropy with \emph{class-balanced} weights
+following.~\cite{cui2019classbalanced},
+\[
+w_c \propto \frac{1-\beta}{1-\beta^{n_c}}, 
+\qquad
+\beta = \frac{\max_c n_c - 1}{\max_c n_c},
+\]
+where $n_c$ is the pixel count of class~$c$, normalized to $\bar{w}=1$.
+
+\paragraph{Focal-Tversky loss.}
+The Focal-Tversky term~\cite{abraham2019focaltversky,salehi2017tversky} is computed only over foreground classes
+($c>0$) to emphasize errors on oil and look-alike regions:
+\begin{align}
+\label{eq:focal_tversky}
+\mathcal{L}_{\mathrm{Focal\mbox{-}Tversky}}
+ &= \frac{1}{|\mathcal{C}_f|}
+    \sum_{c\in\mathcal{C}_f}
+    \big(1 - T_c\big)^{\gamma}, \\[0.3em]
+T_c &= \frac{\mathrm{TP}_c}
+           {\mathrm{TP}_c + \alpha\,\mathrm{FP}_c + \beta\,\mathrm{FN}_c + \varepsilon},
+\end{align}
+where $\mathrm{TP}_c = \sum_{i,j} p_{c,ij}\,y_{c,ij}$,
+$\mathrm{FP}_c = \sum_{i,j} p_{c,ij}(1-y_{c,ij})$,
+and $\mathrm{FN}_c = \sum_{i,j} (1-p_{c,ij})y_{c,ij}$ are computed from the
+softmax probabilities $p_{c,ij}$ and one-hot ground truth $y_{c,ij}$.
+We use $(\alpha,\beta,\gamma)=(0.65,0.35,1.33)$ to penalize false positives more strongly.
+The exponent $\gamma>1$ focuses learning on harder, low-Tversky regions.
+
+\paragraph{Targeted confusion penalties.}
+The additional terms $\mathcal{P}_{a\to b}$ explicitly discourage systematic misclassification between critical classes,
+such as look-alike $\rightarrow$ oil ($2\!\to\!1$) and sea $\rightarrow$ look-alike ($0\!\to\!2$).
+Each penalty takes a focal-like form:
+\begin{equation}
+\label{eq:confusion_penalty}
+\mathcal{P}_{a\to b}
+ = \mathbb{E}\!\left[(p_b)^{\gamma_{\!p}} \,\middle|\, y=a\right],
+\qquad
+\gamma_{\!p}=2.0,
+\end{equation}
+which averages the model’s confidence $p_b$ for the wrong class~$b$ over all pixels
+whose true label is~$a$. 
+This term is scaled by its respective coefficient $\lambda_{a\to b}$ in Eq.~\ref{eq:loss_total}.
+It acts as a soft constraint to reduce confident false alarms between semantically similar categories.
+
+\paragraph{Hard negatives (HN).}
+To curb residual false positives on clean sea, we apply a post-hoc mining step using the
+fine-tuned Peruvian model. 
+Tiles where predicted oil or look-alike regions occupy at least $0.5\%$ of pixels and 
+overlap by $\ge80\%$ with ground-truth sea are marked as \emph{background hard negatives}.
+These masks are logged to CSV and up-weighted in the real sampler through a 
+\texttt{WeightedRandomSampler} to form approximately $10\%$ of the training batches. 
+\cite{rs_hardneg_saroptical_2018,dlr_gan_hn_igarss2018,chen2019deeplab_bootstrap,hard_region_mining_2019}.
+
+\paragraph{Mixed real–synthetic training.}
+When using MORP+SPADE synthetic pairs, we interleave batches in a fixed
+$\texttt{real}:\texttt{synth}=2\!:\!1$ schedule and scale the synthetic loss by $\lambda_{\text{synth}}\!\in\!\{0.25,0.5,1.0,1.5,2.0\}$:
+\[
+\mathcal{L}_\text{total} \;=\; \mathcal{L}_\text{real} \;+\; \lambda_\text{synth}\,\mathcal{L}_\text{synth}.
+\]
+To prevent batch-norm drift from synthetic statistics, we temporarily set BN layers to \texttt{eval()}
+only during synthetic updates (restored afterwards). We anchor epoch length to one pass over the real loader
+and iterate synthetic batches accordingly. (Pseudocode in Appendix~A.)
+
+\paragraph{INADE}
+Unless stated, we train for 60 epochs on $512{\times}512$ crops using Adam with TTUR-style learning rates
+($D{:}G=1{:}1$, $\lambda_\text{feat}{=}10$, $\lambda_\text{VGG}{=}10$, $\text{lr}{=}5{\times}10^{-5}$),
+a spectrally normalized discriminator with hinge loss~\cite{miyato2018spectral,heusel2017ttur}.
 
 
-After pretraining converges, we fine-tune both the Freeze-Backbone and Full Fine-Tuning protocols for 20 additional epochs each, increasing the head learning rate to \(2\times10^{-4}\) while keeping encoder rates unchanged.  Checkpointing, ReduceLROnPlateau (factor 0.3, patience 5), and early stopping (patience 7) ensure stable convergence.  
+
 
 
 \subsubsection{Evaluation Metrics}
@@ -430,24 +501,12 @@ i.e., the proportion of non-background pixels predicted in a patch that should b
 
 \begin{figure}[H]
 \centering
-
-\begin{subfigure}[b]{0.48\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figures/valid_iou_vs_epochs_academic.png}
-  \caption{Validation IoU vs.\ epochs}
-  \label{fig:iou_epochs}
-\end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.48\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figures/valid_loss_vs_epochs_academic.png}
-  \caption{Validation loss vs.\ epochs}
-  \label{fig:loss_epochs}
-\end{subfigure}
-
-\caption{Training curves on the Krestinin source domain: (a) validation mean IoU over 60 epochs; (b) validation loss over 60 epochs.}
+\includegraphics[width=\textwidth]{figures/combined_2x2_training_curves.png}
+\caption{Training curves on the Krestinin source domain (top row) and Peruvian target domain (bottom row). (a) Validation mIoU on Krestinin. (b) Validation loss on Krestinin. (c) Validation mIoU on Peru. (d) Validation loss on Peru.}
 \label{fig:training_krestinin}
 \end{figure}
+
+
 Prior to domain adaptation, all five architectures (ResNet-34 UNet, ResNet-34 UNet+ASPP, ResNet-34 DeepLabV3\texttt{+}, TransUNet, and EfficientNetV2-M + DeepLabV3) were trained for 60 epochs on the Krestinin dataset (4 962 non-overlapping 512×512 tiles, with 569 held out for validation). As shown in Figure~\ref{fig:iou_epochs}, validation IoU rises sharply in the first 20 epochs and then gradually decreases between 0.75 and 0.85, with DeepLabV3\texttt{+} converging earliest and to the highest IoU. Figure~\ref{fig:loss_epochs} confirms a smooth decrease in validation loss, with no signs of premature overfitting. These preliminary results demonstrate that all encoders and decoders learned robust source-domain representations before the evaluation in Table~\ref{tab:krestinin_test}.
 
 
