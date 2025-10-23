@@ -1,0 +1,1058 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage[square,numbers]{natbib}
+\usepackage{booktabs}
+\usepackage{authblk}
+\usepackage{epstopdf}
+\usepackage{textcomp}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\definecolor{ForestGreen}{RGB}{34,139,34}
+\definecolor{BrickRed}{RGB}{178,34,34}
+\usepackage[margin=1in]{geometry}
+\usepackage[backend=biber, style=authoryear, sorting=nyt]{biblatex}
+
+\addbibresource{references.bib}
+\epstopdfDeclareGraphicsRule{.tif}{png}{.png}{convert #1 \OutputFile}
+\AppendGraphicsExtensions{.tif,.png,.pdf}
+%— Title and author block (all before \begin{document}) —
+\title{%
+  Controllable Shape Augmentation for SAR Oil‑Spill Segmentation: A Peruvian Coastal Benchmark and Cross‑Domain Study
+  Enhancing Cross-Domain SAR Oil Spill Segmentation through Morphological Region Perturbation and Synthetic Label-to-SAR Generation
+}
+
+\author[1,2]{Andre Juarez\thanks{Correspondence: \texttt{20200396@lamolina.edu.pe}}}
+\author[1,2]{Luis Salsavilca}
+\author[1,2]{Michel Bañares}
+\author[2]{Frida Coaquira}
+\affil[1]{Círculo de Investigación de Máquinas de Aprendizaje (CIMA), Universidad Nacional Agraria La Molina; \texttt{20200396@lamolina.edu.pe}}
+\affil[2]{Universidad Nacional Agraria La Molina; Facultad de Economía y Planificación, Departamento de Estadística Informática}
+\date{}  % omit date
+
+\begin{document}
+
+%— This prints title + author + affiliations all on page 1 —
+\maketitle
+
+%— Abstract immediately follows —
+\begin{abstract}
+Synthetic data generation has emerged as a promising strategy to alleviate data scarcity in remote sensing tasks, yet most approaches rely solely on appearance-level augmentation. This study introduces MORP-Synth, a two-stage pipeline for improving cross-domain generalization in Sentinel-1 SAR oil spill segmentation. Stage A performs morphological region perturbation (MORP)—a curvature-based label-space augmentation that applies realistic shape deformations to spill regions while preserving contextual integrity. Stage B synthesizes SAR-like patches from the edited masks using a conditional generator (SPADE + INADE). We compile a new Peruvian coastal oil spill dataset comprising 2,132 labeled 512×512 patches derived from 40 Sentinel-1 scenes (2014–2025), complementing the Mediterranean CleanSeaNet source domain.
+
+Using five segmentation architectures (UNet, UNet+ASPP, DeepLabV3+, TransUNet, EfficientNetV2-M + DeepLabV3), we evaluate transfer performance under source-only, fine-tuned, and synthetic-augmented setups. Models pretrained on the Mediterranean dataset (mIoU = 67.8 \%) experience severe degradation on Peruvian data (≈ 51.8 \%), but fine-tuning with class-balanced CE + Dice loss recovers up to +5 pp mIoU. Integrating MORP-Synth augmentation further improves minority-class IoUs, particularly for oil spill and look-alike categories, while reducing false positives on pure-sea scenes. Optimal results occur with moderate morphological perturbation (50 \%) and balanced synthetic scaling (λ ≈ 100).\end{abstract}
+
+\noindent\textbf{Keywords:} oil spill detection; SAR imagery; semantic segmentation; domain adaptation; synthetic data; cGAN; Peruvian coast; Sentinel-1
+
+\bigskip
+\hrule
+\bigskip
+
+
+\section{Introduction}
+
+Marine oil spills are critical environmental hazards with long-lasting impacts on marine biodiversity, coastal livelihoods, and the economy. Rapid and accurate detection is essential for deploying timely containment measures. Among remote sensing techniques, Synthetic Aperture Radar (SAR), particularly from the Sentinel-1 mission, has proven highly effective for this task due to its ability to operate in all-weather, day-and-night conditions. However, SAR imagery poses a unique challenge: oil spills exhibit low backscatter values that are visually indistinguishable from other phenomena such as algal blooms, low wind areas, or natural sea surface roughness variations. This creates ambiguity in visual interpretation and demands more advanced, automated approaches for reliable classification.
+
+Over the last decade, oil spill detection using SAR has evolved significantly. Early methods—based on thresholding, edge detection, and texture analysis—showed limited generalization across environmental scenarios. The emergence of deep learning has revolutionized this field, particularly in semantic segmentation tasks. Among the most cited efforts, \cite{krestenitisOilSpillIdentification2019} introduced a benchmark dataset of 1,112 annotated Sentinel-1 images covering diverse maritime environments. The dataset, which includes oil spills, look-alikes, ships, land, and sea classes, laid the groundwork for evaluating segmentation models such as U-Net, DeepLabV3+, and FCNs. Their results showed that models incorporating atrous (dilated) convolutions and multi-scale context modules significantly outperformed traditional techniques.
+
+Other contributions have refined these approaches. \cite{zhuOilSpillContextual2022} proposed a supervised learning framework that integrates contextual and textural features, using attention-based mechanisms to suppress false positives from look-alike phenomena. Their model demonstrated improved generalization to diverse maritime conditions. Meanwhile, \cite{satyanarayanaOilSpillSegmentation2023} presented encoder-decoder architectures specifically tailored to handle SAR distortions and image noise, emphasizing the benefits of residual connections and hierarchical encoding for structural preservation of oil slick patterns.
+
+Despite these advances, most of the existing studies remain geographically restricted. The majority of models are trained and validated on regional datasets primarily collected from European waters. These models often struggle to generalize to new geographic domains like the Peruvian coast, where oceanographic and atmospheric conditions differ substantially. In particular, the influence of the Humboldt Current—a cold, nutrient-rich marine current that flows northward along the Peruvian coastline—creates unique sea surface characteristics not present in Northern Hemisphere datasets. Furthermore, public datasets for underrepresented regions in the Southeast Pacific are scarce, limiting the applicability of state-of-the-art techniques in local environmental monitoring programs. As noted by \cite{mogollonREPSOLOilSpill2023}, oil spills in Peru—such as the Repsol disaster in 2022—highlight the urgent need for region-specific detection tools and response mechanisms, given the complexity of spill dispersion and weak regulatory frameworks in Latin America.
+
+ A major limitation of current deep learning models for oil spill detection is their dependency on regional data distributions. Models trained on a specific domain—such as European coastal datasets—may experience performance degradation when applied to distinct environments like the Southeast Pacific. Domain shifts caused by differences in wind intensity, sea surface roughness, oil viscosity, and SAR acquisition geometry reduce transferability. In addition, the lack of high-quality, labeled SAR datasets for the Peruvian maritime zone further restricts the implementation of supervised models tailored to local conditions.
+
+This study seeks to bridge that gap by evaluating and adapting deep segmentation models—originally trained on the Krestenitis et al. dataset—to the Peruvian coast using fine-tuning. To support this, we acquired Sentinel-1 SAR imagery over select Peruvian coastal zones and manually labeled oil spill instances using the tool \textit{digitalsreeni-image-annotator}, replicating the class structure defined in their benchmark dataset. Our main goal is to assess whether transfer learning from a well-established source domain, combined with a small set of local labeled images, can significantly improve detection performance in a data-scarce target region.
+
+\textbf{Contributions:}
+\begin{itemize}
+    \item Benchmarking of four CNN-based segmentation architectures (ResNet-UNet, DeepLabV3+, TransUNet, and EfficientNet-DeepLab) using the Krestenitis et al. dataset as source domain.
+    \item Construction of a custom-labeled SAR dataset for Peruvian coastal waters, manually annotated to replicate the semantic structure of the original dataset.
+    \item Application of fine-tuning strategies to improve model performance in the target domain, and evaluation of the transferability of each architecture under domain shift.
+\end{itemize}
+
+The rest of the paper is organized as follows. Section 2 describes the study areas, data acquisition, preprocessing steps, and the deep learning architectures used. Section 3 presents the experimental results, including quantitative metrics and visual comparisons. Section 4 offers a discussion on model behavior under domain shift and practical implications for oil spill detection in Peru. Finally, Section 5 summarizes the findings and outlines future research directions.
+
+\section{Materials and Methods}
+
+\subsection{Study Area and Datasets}
+
+\subsubsection{Mediterranean (Source) Dataset}
+The source domain in this study corresponds to the Mediterranean Sea and is based on the publicly available dataset compiled by Krestenitis et al. \cite{krestenitisOilSpillIdentification2019}. This dataset contains a total of 1,112 Sentinel-1 SAR images in Ground Range Detected (GRD) format with vertical-vertical (VV) polarization, collected between 2015 and 2017. Each image is centered around known oil spill incidents reported in the CleanSeaNet (CSN) service operated by EMSA (European Maritime Safety Agency), and covers a spatial extent of 512×512 pixels at a 10-meter ground resolution.
+
+The dataset includes pixel-level segmentation masks distinguishing five semantic classes: open sea (0), oil spill (1), look-alike phenomena such as low wind or algae blooms (2), ships (3), and coastal land (4). Ground truth annotations were generated via visual inspection of SAR backscatter patterns in conjunction with metadata from CleanSeaNet alert records. This dataset provides a rich and balanced training ground for developing oil spill detection algorithms in a relatively stable marine environment.
+
+\subsubsection{Peruvian Coastal Dataset}
+
+The Peruvian coastal dataset was developed to provide a representative target domain for oil spill detection under local environmental conditions. This region, located in the Southeast Pacific and influenced by the Humboldt Current, presents distinct oceanographic and meteorological characteristics compared to the Mediterranean. Such conditions introduce additional challenges for model generalization due to differences in sea surface roughness and slick dispersion dynamics.
+
+The initial stage of dataset construction involved compiling 66 documented oil spill incidents from 2012 to 2022, based on official records from OEFA and OSINERGMIN. Figure~\ref{fig:peru_spills_map} visualizes the spatial distribution and estimated volumes of these incidents, which are mostly concentrated near Lima and the northern coast.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/oil_spills_peru_2012_2024.png}
+    \caption{Spatial distribution and volume classification of 66 oil spills recorded along the Peruvian coast from 2012 to 2022.}
+    \label{fig:peru_spills_map}
+\end{figure}
+Figure X shows the spatial distribution of 67 reported oil spills (2012–2024) along the Peruvian coast, derived from OEFA and OSINERGMIN databases with the addition of the 2024 Lobitos spill (Piura). Bubble size represents reported discharge volume. Most incidents cluster around Talara–Paita in the north, Lima–Callao in the center, and Ilo–Tacna in the south
+
+
+
+A total of 38 Sentinel-1 SAR images were ultimately selected from this set of events based on three criteria: (1) visual observability of the oil slick in the SAR image, (2) temporal proximity to the reported spill date (within 3–20 days, following \cite{mogollonREPSOLOilSpill2023}), and (3) availability and quality of satellite acquisition. These images span the period from 2014 to 2025 and were acquired from the Copernicus Sentinel-1 GRD mission with a size of 5569 x 5569 pixel resolution size.
+
+Table~\ref{tab:peruvian_selection} summarizes the 38 Sentinel-1 SAR scenes selected for the Peruvian coastal dataset, sorted chronologically by spill date. Each entry corresponds to a confirmed spill case, including its coordinates, SAR acquisition date, and delay in days (\textit{Δ Days}) between the incident and image capture.
+
+
+\subsection{Preprocessing}
+All images are radiometrically calibrated to $\sigma^0$, 
+received speckle noise reduction (3$\times$3 median), and normalized to 10 m/pixel. 
+Peruvian scenes also undergo terrain flattening and simple incidence-angle normalization. 
+We retain only IW swath, VV polarization. Details on implementation are provided in Appendix~A.
+\subsubsection{Domain Differences}
+Despite relying on the same SAR sensor (Sentinel-1 GRD, VV polarization), the Mediterranean and Peruvian datasets exhibit distinct environmental and acquisition conditions that pose challenges for generalization and motivate the use of domain adaptation techniques (see \ref{tab:domain_differences}.
+
+These domain shifts affect the visual appearance of oil slicks and background patterns in SAR images, which can degrade the performance of models trained in one region when applied to another. Therefore, domain adaptation becomes essential to improve generalization to new environmental conditions.
+
+\begin{table}[ht]
+\centering
+\caption{Key differences between the Mediterranean and Peruvian SAR datasets.}
+\begin{tabular}{|p{3.5cm}|p{5.2cm}|p{5.2cm}|}
+\hline
+\textbf{Aspect} & \textbf{Mediterranean Dataset} & \textbf{Peruvian Dataset} \\
+\hline
+Sea conditions & Calmer, semi-enclosed seas (e.g., Aegean) with smaller slicks & Rougher open-sea conditions; larger and more irregular slicks \\
+\hline
+Oceanographic forcing & Moderate seasonal winds and currents & Strong Humboldt Current, frequent upwelling zones \\
+\hline
+SAR backscatter texture & Smooth background, high contrast between slick and sea & Textured background, increased risk of misclassification \\
+\hline
+Acquisition geometry & Primarily descending orbits; narrow range of incidence angles & Mixed orbits; wider variation in incidence angles and surface response \\
+\hline
+Ground truth quality & Detailed EMSA CleanSeaNet reports and segmentation masks & Sparse ground truth from OEFA/OSINERGMIN; manual annotations required \\
+\hline
+\end{tabular}
+\label{tab:domain_differences}
+\end{table}
+\clearpage
+
+\subsection{Deep Learning Segmentation Models} 
+We benchmark four representative families under a unified training setup to provide a robust baseline for oil-spill segmentation.
+
+\paragraph{ResNet-UNet (R34).}
+A standard UNet decoder with skip connections on top of a ResNet-34 encoder (ImageNet pretraining). This serves as our canonical encoder–decoder baseline~\cite{ronnebergerUNetConvolutionalNetworks2015a,heDeepResidualLearning2015}.
+
+\paragraph{ResNet-UNet + ASPP (R34+ASPP).}
+A practical variant that inserts an Atrous Spatial Pyramid Pooling (ASPP) block at the bottleneck to capture multi-scale context with minimal overhead; we treat this as a baseline variant rather than a novel architecture~\cite{chenDeepLabSemanticImage2017}.
+
+\paragraph{DeepLabV3\textplus{} (R34).}
+A lightweight head that aggregates multi-scale features via ASPP and uses a single low-level skip to refine boundaries, replacing a heavy UNet-style decoder~\cite{chenDeepLabSemanticImage2017}.
+
+\paragraph{TransUNet.}
+A CNN encoder feeding a ViT core to model long-range dependencies, followed by a UNet-style decoder~\cite{chenTransUNetTransformersMake2021}.
+
+\paragraph{EfficientNetV2-M + DeepLabV3\textplus{}.}
+An EfficientNetV2-M encoder paired with a DeepLabV3\textplus{} head to probe accuracy–efficiency trade-offs~\cite{efsongEfficientMarineOil2018,chenDeepLabSemanticImage2017}.
+
+\paragraph{Fairness controls.}
+All backbones use the same input size ($512{\times}512$), class set, loss (CE{+}Dice), class weights, data augmentation, optimizer/schedule, epochs, and seeds; only the backbone/head differ. We report mean$\pm$std over three seeds. Implementation details and hyperparameters are in Appendix~A.
+
+
+\subsection{Synthetic Data Generation}
+We synthesize SAR-like patches from 5-class semantic masks using a SPADE generator with
+Instance-Adaptive De-normalization (INADE) \cite{park2019spade, tan2021inade}. SPADE modulates
+normalization parameters spatially from the input mask, preventing the semantic information from
+being washed out by vanilla normalization \cite{park2019spade}. INADE further samples instance-level
+modulation to increase diversity across objects of the same class \cite{tan2021inade}.
+The discriminator uses spectral normalization and a hinge loss to stabilize training \cite{miyato2018spectral},
+and we adopt Adam with TTUR-style learning rates \cite{heusel2017ttur}.
+While diffusion models can surpass GANs in sample quality, their iterative sampling cost renders them
+impractical for large-batch augmentation in our setting \cite{dhariwal2021diffusion, yang2022diffsurvey}.
+
+\subsection{MORP: Morphological Region Perturbation}
+\label{sec:morp}
+
+We propose \textbf{MORP-Synth}, a two-stage pipeline that augments scarce SAR oil-spill training data by
+(1) perturbing object \emph{shape} directly in label space via our Morphological Region Perturbation (\textbf{MORP}), and
+(2) rendering SAR-like appearance from the edited masks using an off-the-shelf conditional generator (SPADE with INADE).
+Our novelty lies in Stage~A; Stage~B is an applied component selected for efficiency and controllability.
+
+
+\subsection{Stage A: MORP—Morphological Region Perturbation}
+\label{sec:morp-main}
+MORP edits spill shapes in the label domain while preserving surrounding context. Given a $K$-class mask
+($K{=}5$: sea, oil, look-alike, ship, land), we (i) select target connected components ($\mathcal{C}{=}\{\text{oil},\text{look-alike}\}$),
+(ii) apply a single rigid move per selected region (erase$\to$rotate$\to$translate$\to$paste with collision rejection),
+(iii) detect boundary \emph{apices} via smoothed curvature peaks, and (iv) perform localized stochastic edits
+(bulge or wedge) along outward normals. The result is an augmented mask $\mathcal{L}^\star$ with realistic
+lobes/notches and plausible displacements (Algorithm~\ref{alg:morp}) that can be rendered into SAR-like geometry objects appearance.
+
+
+\begin{algorithm}[H]
+\caption{MORP (minimal pipeline)}
+\label{alg:morp}
+\begin{algorithmic}[1]
+\Require Label map $\mathcal{L}\in\{0,\dots,4\}^{H\times W}$; target classes $\mathcal{C}=\{1,2\}$
+\Require Transform params: angle range $[-\pi,\pi)$, max shift $R$
+\Require Apex params: $m$ apices, $p_{\mathrm{exp}}$, fan half-angle $\alpha$, rays $n_{\mathrm{rays}}$, max radius $r_{\max}$
+\Ensure Augmented labels $\mathcal{L}^\star$
+\State $\mathcal{L}^\star \gets \mathcal{L}$
+\State $\mathcal{R} \gets \bigcup_{c\in\mathcal{C}}\mathrm{ConnComp}(\mathbb{1}[\mathcal{L}{=}c])$ \Comment{connected components of oil/look-alike}
+\ForAll{$R \in \mathrm{Select}(\mathcal{R})$} \Comment{e.g., $4$–$8$ regions/image, stratified by class}
+  \State $c \gets \mathrm{Class}(R)$
+  \State \textit{// Stage 1: rotate \& place}
+  \State sample $\theta$ and $(\Delta x,\Delta y)$ with $\|\!(\Delta x,\Delta y)\!\|\le R$
+  \State $R_{\mathrm{rot}} \gets \mathrm{RotateNoCrop}(R,\theta)$
+  \State $\mathcal{L}^\star \gets \mathrm{EraseRegion}(\mathcal{L}^\star,R)$
+  \If{$\mathrm{TryPaste}(\mathcal{L}^\star,R_{\mathrm{rot}},\Delta x,\Delta y, \text{allowed}=\{0,3\})$}
+    \State $R' \gets \mathrm{ExtractRegion}(\mathcal{L}^\star,c,\text{near paste})$
+    \State \textit{// Stage 2: apices on the new boundary}
+    \State $A \gets \mathrm{FindApicesViaCurvature}(R',\, w{=}9,\, p{=}3,\, \text{prominence}=85{\small th}\%)$
+    \State choose $m$ points $A_m \subseteq A$ (enforce min spacing)
+    \State \textit{// Stage 3: multi-apex stochastic edits}
+    \ForAll{$a \in A_m$}
+      \State $B,S \gets \mathrm{ApexEdit}(R', a, p_{\mathrm{exp}}, \alpha, n_{\mathrm{rays}}, r_{\max})$
+      \State \textbf{if} $B\!\neq\!\emptyset$ \textbf{ then } $\mathcal{L}^\star[B]\gets c$ \Comment{union (bulge)}
+      \State \textbf{if} $S\!\neq\!\emptyset$ \textbf{ then } $\mathcal{L}^\star[S]\gets 0$ \Comment{difference (shrink)}
+    \EndFor
+  \Else
+    \State \textbf{continue} \Comment{reject placement, keep map unchanged}
+  \Fi
+\EndFor
+\State \Return $\mathcal{L}^\star$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{FindApicesViaCurvature (contour peaks)}
+\label{alg:apices}
+\begin{algorithmic}[1]
+\Require Region mask $R'$, smoothing window $w$, polyorder $p$, peak prominence quantile $q{=}0.85$
+\Ensure Set of apex coordinates $A$
+\State $P \gets \mathrm{OuterContour}(R')$ \Comment{ordered $(x_t,y_t)$, $t{=}1..N$}
+\State $(\tilde{x},\tilde{y}) \gets \mathrm{SavitzkyGolay}(x,y; w,p,\text{mode=wrap})$
+\State compute discrete curvature $\kappa_t$ from $(\tilde{x}_t,\tilde{y}_t)$
+\State $\kappa^{+}_t \gets \max(0,\kappa_t)$; threshold $\tau \gets \mathrm{Quantile}(\{\kappa^{+}_t\},q)$
+\State $\text{peaks} \gets \mathrm{FindPeaks}(\kappa^{+},\text{prominence}>\tau,\text{distance}\ge4)$
+\State \Return $A \gets \{(\tilde{x}_t,\tilde{y}_t)\,:\, t\in\text{peaks}\}$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{ApexEdit (expand or shrink at a point)}
+\label{alg:apexedit}
+\begin{algorithmic}[1]
+\Require Region mask $R'$, apex $a$, prob.\ $p_{\mathrm{exp}}$, fan half-angle $\alpha$, ray count $n_{\mathrm{rays}}$, max radius $r_{\max}$
+\Ensure Add-mask $B$ (bulge), remove-mask $S$ (wedge)
+\State $B,S \gets \emptyset,\emptyset$
+\State $\vec{n} \gets \mathrm{NormalAt}(R',a)$ \Comment{e.g., gradient of distance transform}
+\State $z \sim \mathrm{Bernoulli}(p_{\mathrm{exp}})$
+\If{$z{=}1$} \Comment{expand}
+  \State $B \gets \mathrm{RadialFanPolygon}(a,\vec{n},\alpha,n_{\mathrm{rays}},r_{\max},\text{smooth/close})$
+\Else \Comment{shrink}
+  \State $S \gets \mathrm{RadialFanPolygon}(a,-\vec{n},\alpha,n_{\mathrm{rays}},r_{\max},\text{smooth/close}) \cap R'$
+\EndIf
+\State \Return $B,S$
+\end{algorithmic}
+\end{algorithm}
+
+\vspace{-0.25em}
+\paragraph{Symbols (quick reference).}
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$\mathcal{L}$ & input labels (classes: sea, oil, look-alike, ship, land) \\
+$\mathcal{C}$ & target classes $\{1,2\}$ (\emph{oil}, \emph{look-alike}) \\
+$R, R', R_{\mathrm{rot}}$ & original region, pasted region, rotated region \\
+$A, A_m$ & all apices, chosen subset for edits \\
+$\alpha, n_{\mathrm{rays}}, r_{\max}$ & fan half-angle, ray count, max radial extent \\
+$B, S$ & add-mask (bulge), remove-mask (shrink) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+\begin{figure}[htbp]
+  \centering
+  % Center the entire table
+  \makebox[\textwidth][c]{
+  \renewcommand{\arraystretch}{1.0}
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{c}
+    %── Header text ───────────────────────────────────────────────
+    \textbf{\scriptsize (a) Original \quad (b) Rotate \& Place + Apices Selection 
+    \quad (c) Curvature Edits (+ / –) 
+    \quad (d) Final Augmented Image} \\[0.3em]
+    %── Row 1 ─────────────────────────────────────────────────────
+    \includegraphics[width=0.93\textwidth]{figures/images_morp/img_6__GLOBAL_summary_rgb.png} \\[0.6em]
+    %── Row 2 ─────────────────────────────────────────────────────
+    \includegraphics[width=0.93\textwidth]{figures/images_morp/img_7__GLOBAL_summary_rgb.png} \\
+  \end{tabular}
+  }
+
+  \caption{Illustration of the MORP augmentation workflow for two representative spill regions.
+  Each row shows the complete four-stage process within a single image:
+  (a) original mask before transformation; 
+  (b) rotated/translated region with detected apices; 
+  (c) curvature-based local edits showing expansions (magenta) and shrinkages (green); 
+  (d) final augmented mask after shape perturbation.
+  Additional examples are provided in Appendix~A.}
+  \label{fig:morp_workflow}
+\end{figure}
+
+
+
+\subsection{Stage B: Mask-to-SAR Synthesis (cGAN-INADE)}
+\label{sec:gen}
+We condition an off-the-shelf SPADE generator~\cite{park2019spade} augmented with
+Instance-Adaptive De-normalization (INADE)~\cite{tan2021inade} on the edited masks.
+SPADE sets per-pixel affine normalization from the semantic mask to preserve structure,
+while INADE samples instance-level modulation to diversify shapes of the same class.
+
+
+\begin{figure}[htbp]
+  \centering
+  \makebox[\textwidth][c]{
+  \renewcommand{\arraystretch}{1.0}
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{cccc}
+    \textbf{\scriptsize (a) Real SAR} & 
+    \textbf{\scriptsize (b) Real Mask} & 
+    \textbf{\scriptsize (c) Synthesized Mask (MORP) } & 
+    \textbf{\scriptsize (d) Synthesized SAR (INADE)} \\[0.4em]
+    %─── Row 1 ───────────────────────────────────────────────
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/7_1_2015-03-16_S1_GRD_VV_patch_21-1.png} &
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/7_1_2015-03-16_S1_GRD_VV_mask1d_21_rgb.png} &
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/aug_lookalike_rgb_7_1_2015-03-16_S1_GRD_VV_mask1d_21.png} &
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/aug_lookalike_label_7_1_2015-03-16_S1_GRD_VV_mask1d_21.png} \\[0.6em]
+    %─── Row 2 ───────────────────────────────────────────────
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/95_1_2017-07-18_S1_GRD_VVVH_patch_0-1.png} &
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/95_1_2017-07-18_S1_GRD_VVVH_mask1d_0_rgb.png} &
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/aug_lookalike_rgb_95_1_2017-07-18_S1_GRD_VVVH_mask1d_0.png} &
+    \includegraphics[width=0.22\textwidth]{figures/images_morp/inade_trans_pairs/aug_lookalike_label_95_1_2017-07-18_S1_GRD_VVVH_mask1d_0.png} \\
+  \end{tabular}
+  }
+
+  \caption{Comparison of real and synthesized samples in the Mask-to-SAR generation stage using SPADE with Instance-Adaptive De-Normalization (INADE). 
+  Columns show: (a) real Sentinel-1 SAR patches; (b) corresponding ground-truth masks; 
+  (c) synthetic SAR images generated by SPADE+INADE conditioned on MORP-augmented masks; 
+  (d) synthesized masks produced by MORP. The generated patches preserve object geometry while introducing realistic backscatter variation.}
+  \label{fig:inade_synth_pairs}
+\end{figure}
+
+
+
+
+
+\subsection{Putting it together}
+Given a real mask $\mathcal{L}$, MORP produces $\mathcal{L}^\star$ (Stage~A), which conditions the generator
+to yield a synthetic SAR patch $x^\star$ (Stage~B). We pair $\{x^\star,\mathcal{L}^\star\}$ with real
+$\{x,\mathcal{L}\}$ to train a segmentation model. Section~\ref{sec:exp} quantifies gains from
+MORP (shape edits) vs.\ synthesis (appearance) via controlled ablations.
+
+
+
+
+
+
+
+
+\clearpage
+\subsubsection{Training Details}
+\label{sec:training}
+
+All models were first trained from scratch on the Mediterranean dataset of Krestenitis et al.~\cite{krestenitisOilSpillIdentification2019}, 
+which contains 4,962 overlapping $512\times512$ tiles, with 569 held out for testing. 
+We then fine-tuned the pretrained weights on the Peruvian dataset composed of 1,795 training and 218 testing patches 
+of the same spatial resolution. The split was performed at the \emph{event} level to prevent spatial or temporal leakage 
+between training and testing scenes (see Table~\ref{tab:peruvian_selection}). 
+\paragraph{Patch extraction.}
+To generate model-ready tiles, we implemented a controlled patching routine that extracts
+both positive (spill-containing) and negative (background) windows from each SAR scene.
+Given an image~$I$ and its corresponding label mask~$M$, all connected spill or look-alike regions 
+were first localized, and fixed-size windows of $512\times512$~pixels were sampled around them 
+using a sliding window with stride 384. 
+To improve class balance and prevent overrepresentation of sea background, 
+a limited number of purely negative windows were also included at a ratio of $\approx1.25:1$
+relative to the number of positive windows, drawn uniformly from non-overlapping
+background regions. This strategy ensures that every scene contributes both spill and non-spill examples,
+reducing the false-positive bias inherent in heavily imbalanced maritime datasets.
+
+Each patch was normalized through a robust percentile-based stretch computed once per scene.
+Specifically, the backscatter values in~$I$ were clipped between the 0.5th and 97.5th percentiles
+of valid pixels, with physical caps at~$[-35, -1]$~dB.
+This percentile normalization mitigates inter-scene illumination differences
+caused by acquisition geometry or sea-state variations, while preserving
+relative contrast between oil slicks and background.
+Unlike per-pixel floating normalization, which may distort the radiometric signature across patches,
+the percentile scaling maintains a consistent dynamic range and is reproducible across acquisitions.
+
+The ground-truth masks were remapped to a unified label scheme 
+$\{0{:}\text{sea},\,1{:}\text{oil},\,2{:}\text{look\_alike},\,3{:}\text{ship},\,4{:}\text{land}\}$ 
+to ensure compatibility with the Mediterranean dataset.
+This remapping harmonizes manually annotated Peruvian masks with the semantic classes defined in 
+\cite{krestenitisOilSpillIdentification2019}.
+Color-coded versions of each patch were also saved for visual inspection,
+while training labels were stored as single-channel integer maps.
+
+All output patches and metadata were saved to disk with georeferencing preserved,
+using \texttt{rasterio}’s \texttt{Window} interface and the parent GeoTIFF transform.
+We excluded a few scenes with incomplete annotations or extremely small spill areas
+from the patching process.
+The resulting dataset constitutes a spatially balanced and radiometrically standardized
+collection of Peruvian oil spill samples used in subsequent fine-tuning and evaluation.
+
+
+
+
+All models share the same input size, loss design, and data augmentations (Albumentations: horizontal/vertical flips, Gaussian noise, and 
+CoarseDropout up to eight holes of maximum size $32^2$ pixels). Training employed the AdamW optimizer 
+($\beta_1{=}0.9,\beta_2{=}0.999$, weight decay $10^{-4}$) with a batch size of 32.
+
+For the Mediterranean domain, models were trained for 60~epochs with an initial learning rate 
+of $1\times10^{-4}$, using \textit{ReduceLROnPlateau} (factor~0.3, patience~5) and early stopping (patience~10). 
+The loss combined weighted cross-entropy and Dice terms:
+\[
+\mathcal{L}_{\text{src}} = \mathcal{L}_{\mathrm{WCE}} + \mathcal{L}_{\mathrm{Dice}},
+\]
+where the class weight $w_c$ in $\mathcal{L}_{\mathrm{WCE}}$ was set inversely proportional to the geometric mean 
+of the class pixel frequencies across all training images to compensate for the dominance of the sea class.  
+
+For the Peruvian (target) domain, we fine-tuned each network for 40~epochs with an initial learning rate 
+of $2\times10^{-4}$ and adopted a more expressive composite loss function (Eq.~\ref{eq:loss_total}). 
+The best epoch was selected according to the mean Intersection-over-Union (mIoU) on the validation subset.
+
+\paragraph{Loss.}
+We minimize a multi-term objective that combines 
+(i) the \emph{class-balanced cross-entropy} loss
+$\big(\mathcal{L}_{\mathrm{CB\mbox{-}CE}}\big)$
+to counter class imbalance,
+(ii) the \emph{Focal--Tversky loss}
+$\big(\mathcal{L}_{\mathrm{Focal\mbox{-}Tversky}}\big)$
+to emphasize difficult foreground regions,
+and (iii) targeted confusion penalties
+$\big(\mathcal{P}_{a\!\to\!b}\big)$
+to reduce systematic mislabelling between specific class pairs.
+The total objective is written as
+\begin{equation}
+\label{eq:loss_total}
+\mathcal{L}_{\text{real}}
+ = \lambda_{\mathrm{CE}}\,
+   \mathcal{L}_{\mathrm{CB\mbox{-}CE}}
+ + \lambda_{\mathrm{FTL}}\,
+   \mathcal{L}_{\mathrm{Focal\mbox{-}Tversky}}
+ + \sum_{(a,b)\in\mathcal{P}}
+   \lambda_{a\!\to\!b}\,
+   \mathcal{P}_{a\!\to\!b},
+\end{equation}
+with coefficients
+$(\lambda_{\mathrm{CE}},\lambda_{\mathrm{FTL}},\lambda_{2\to1},\lambda_{0\to2})
+ =(0.3,\,0.7,\,0.40,\,0.30)$
+and $\mathcal{P}=\{(2,1),(0,2)\}$.
+
+
+The first term, $\mathcal{L}_{\mathrm{CB\mbox{-}CE}}$, is cross-entropy with \emph{class-balanced} weights
+following.~\cite{cui2019classbalanced},
+\[
+w_c \propto \frac{1-\beta}{1-\beta^{n_c}}, 
+\qquad
+\beta = \frac{\max_c n_c - 1}{\max_c n_c},
+\]
+where $n_c$ is the pixel count of class~$c$, normalized to $\bar{w}=1$.
+
+\paragraph{Focal-Tversky loss.}
+The Focal-Tversky term~\cite{abraham2019focaltversky,salehi2017tversky} is computed only over foreground classes
+($c>0$) to emphasize errors on oil and look-alike regions:
+\begin{align}
+\label{eq:focal_tversky}
+\mathcal{L}_{\mathrm{Focal\mbox{-}Tversky}}
+ &= \frac{1}{|\mathcal{C}_f|}
+    \sum_{c\in\mathcal{C}_f}
+    \big(1 - T_c\big)^{\gamma}, \\[0.3em]
+T_c &= \frac{\mathrm{TP}_c}
+           {\mathrm{TP}_c + \alpha\,\mathrm{FP}_c + \beta\,\mathrm{FN}_c + \varepsilon},
+\end{align}
+where $\mathrm{TP}_c = \sum_{i,j} p_{c,ij}\,y_{c,ij}$,
+$\mathrm{FP}_c = \sum_{i,j} p_{c,ij}(1-y_{c,ij})$,
+and $\mathrm{FN}_c = \sum_{i,j} (1-p_{c,ij})y_{c,ij}$ are computed from the
+softmax probabilities $p_{c,ij}$ and one-hot ground truth $y_{c,ij}$.
+We use $(\alpha,\beta,\gamma)=(0.65,0.35,1.33)$ to penalize false positives more strongly.
+The exponent $\gamma>1$ focuses learning on harder, low-Tversky regions.
+
+\paragraph{Targeted confusion penalties.}
+The additional terms $\mathcal{P}_{a\to b}$ explicitly discourage systematic misclassification between critical classes,
+such as look-alike $\rightarrow$ oil ($2\!\to\!1$) and sea $\rightarrow$ look-alike ($0\!\to\!2$).
+Each penalty takes a focal-like form:
+\begin{equation}
+\label{eq:confusion_penalty}
+\mathcal{P}_{a\to b}
+ = \mathbb{E}\!\left[(p_b)^{\gamma_{\!p}} \,\middle|\, y=a\right],
+\qquad
+\gamma_{\!p}=2.0,
+\end{equation}
+which averages the model’s confidence $p_b$ for the wrong class~$b$ over all pixels
+whose true label is~$a$. 
+This term is scaled by its respective coefficient $\lambda_{a\to b}$ in Eq.~\ref{eq:loss_total}.
+It acts as a soft constraint to reduce confident false alarms between semantically similar categories.
+
+\paragraph{Hard negatives (HN).}
+As a post-hoc refinement to the Peruvian fine-tuning stage, we introduced a static pool of 
+\textbf{210 background hard-negative patches} mined from the same training split. 
+These tiles were identified using the previously fine-tuned model: 
+patches where predicted oil or look-alike regions occupied at least $0.5\%$ of pixels
+and overlapped by $\ge80\%$ with ground-truth sea were flagged as false positives. 
+The resulting hard-negative set was logged to a CSV file and incorporated into subsequent training 
+through a \texttt{WeightedRandomSampler}, contributing approximately $10\%$ of all real batches.
+This static hard-negative pool remained fixed across experiments and served to bias the real sampler 
+toward challenging background cases that the baseline model tended to misclassify.
+Such re-weighting has been shown to improve discrimination in highly imbalanced segmentation problems 
+\cite{rs_hardneg_saroptical_2018,dlr_gan_hn_igarss2018,chen2019deeplab_bootstrap,hard_region_mining_2019}.
+
+\paragraph{Multi-scale augmentation of the real stream.}
+In a complementary post-hoc experiment, we augmented the Peruvian training stream with 
+\textbf{959 multi-scale patches} extracted from the same SAR scenes at three contextual levels 
+($z_2$, $z_3$, $z_4$), corresponding roughly to windows of 1024–2048~pixels before resizing to $512{\times}512$. 
+These multi-scale tiles preserve label consistency while expanding spatial context around oil slicks,
+ships, and coastal boundaries.
+The additional dataset was integrated into the real data loader as a secondary subset,
+weighted to represent approximately $25\text{–}30\%$ of effective training batches.
+All multi-scale samples underwent the same Albumentations pipeline 
+(resizing, horizontal/vertical flips, limited rotations, and normalization) as the nominal real patches. 
+During fine-tuning, they were treated as part of the real domain 
+and optimized under the same composite loss (Eq.~\ref{eq:loss_total}), 
+with batch-normalization layers remaining in training mode to preserve consistent statistics.
+A brief linear warm-up was applied to the multi-scale sampling fraction 
+over the first 40\% of epochs to ensure stable convergence.
+Although exploratory, this augmentation consistently improved oil-spill and overall mIoU
+by 1–3~points across multiple synthetic setups.
+
+\paragraph{Synthetic label-to-SAR augmentation (MORP–Synth).}
+Synthetic samples were generated using the MORP–Synth framework, which combines 
+(i) label-space morphological perturbations and 
+(ii) conditional appearance synthesis via SPADE+INADE generators trained on the Mediterranean domain.
+The morphological parameter $\texttt{morph}$ controls the fraction of masks 
+undergoing dilation or erosion before synthesis, with 
+$\texttt{morph00}$, $\texttt{morph50}$, and $\texttt{morph100}$ 
+corresponding to $0\%$, $50\%$, and $100\%$ of the 902 synthetic label maps 
+being morphologically modified, respectively.
+These operations expand or contract oil slick boundaries by a fixed structuring radius 
+of 3–5~pixels, simulating physical diffusion and radar speckle variability along slick edges.
+
+\paragraph{Synthetic gradient scaling.}
+During mixed training, synthetic batches were interleaved with real batches 
+at a fixed ratio of $\texttt{real\_steps}:\texttt{synth\_steps}=2:1$.
+The total training objective extended Eq.~\ref{eq:loss_total} as:
+\[
+\mathcal{L}_{\text{total}}
+ = \mathcal{L}_{\text{real}} + \lambda_{\text{synth}} \, \mathcal{L}_{\text{synth}},
+\]
+where $\lambda_{\text{synth}}\in\{25,50,100,150,200\}$ scales the contribution 
+of the synthetic gradients without changing the number of synthetic samples.
+This parameter controls the effective influence of synthetic supervision: 
+small values limit exposure to the synthetic domain, 
+whereas large values may overfit to synthetic artifacts.
+
+\paragraph{INADE}
+Unless stated, we train for 60 epochs on $512{\times}512$ crops using Adam with TTUR-style learning rates
+($D{:}G=1{:}1$, $\lambda_\text{feat}{=}10$, $\lambda_\text{VGG}{=}10$, $\text{lr}{=}5{\times}10^{-5}$),
+a spectrally normalized discriminator with hinge loss~\cite{miyato2018spectral,heusel2017ttur}.
+
+
+
+
+
+\subsubsection{Evaluation Metrics}
+\label{sec:evaluation}
+
+\paragraph{Mean Intersection-over-Union (mIoU)}  
+We evaluate segmentation performance using the mean Intersection-over-Union (mIoU) over all \(C=5\) semantic classes. For each class \(c \in \{0,\dots,4\}\), the IoU is defined as:
+\[
+\mathrm{IoU}_c = \frac{\mathrm{TP}_c}{\mathrm{TP}_c + \mathrm{FP}_c + \mathrm{FN}_c},
+\]
+where \(\mathrm{TP}_c\), \(\mathrm{FP}_c\), and \(\mathrm{FN}_c\) are the number of true positives, false positives, and false negatives for class \(c\), respectively. 
+
+\paragraph{False‐Positive Rate on Pure‐Sea Scenes}  
+To quantify robustness against false detections, we compute the false-positive rate (FPR) on a curated set of “pure-sea” validation tiles—patches that contain no oil or look-alike pixels. Let \(\hat{y}_{i,j}\) be the predicted class label at pixel \((i,j)\), where class 0 corresponds to background (sea surface). Then, the FPR is:
+\[
+\mathrm{FPR} = \frac{1}{HW} \sum_{i,j} \mathbf{1}\left\{ \hat{y}_{i,j} \neq 0 \right\},
+\]
+i.e., the proportion of non-background pixels predicted in a patch that should be entirely clean water. This metric is critical to assess over-segmentation and operational reliability in real-world scenarios where oil spills are rare.
+\subsection{Experimental Design and Training Strategy}
+
+
+\section{Results}
+
+\subsection{Quantitative Evaluation}
+
+
+\subsubsection{Baseline (Source-only)}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/combined_2x2_training_curves.png}
+\caption{Training curves on the Krestinin source domain (top row) and Peruvian target domain (bottom row). (a) Validation mIoU on Krestinin. (b) Validation loss on Krestinin. (c) Validation mIoU on Peru. (d) Validation loss on Peru.}
+\label{fig:training_krestinin}
+\end{figure}
+
+
+After source-domain pretraining on the Krestinin dataset, all five architectures exhibited stable convergence within 60 epochs, reaching validation mIoUs between 0.75 and 0.85 with no evidence of overfitting. The learned features from this stage served as initialization for transfer to the Peruvian target domain, where models were either fine-tuned from their Krestinin checkpoints (dashed lines) or retrained from standard ImageNet-pretrained weights (dotted lines). Fine-tuned runs started from the validation performance achieved on Krestinin and consistently converged faster and to higher mIoU and lower loss than ImageNet-initialized counterparts, confirming effective feature reuse across marine environments despite differences in sea-state and incidence-angle statistics. 
+
+Table~\ref{tab:krestinin_test} summarizes the performance of all evaluated architectures on the unseen Krestinin test set of 569 tiles (\(512\times512\)). Among all baselines, the \textit{ResNet-34 DeepLabV3\texttt{+}} achieved the highest mean IoU (67.82\%), followed closely by the \textit{ResNet-34 UNet+ASPP} (66.05\%) and the plain \textit{UNet} (65.82\%). These results reaffirm that integrating multi-scale contextual modules—such as ASPP—into skip-connected decoders enhances segmentation accuracy, particularly for the challenging \textit{oil spill} and \textit{look-alike} categories~\citep{charngDeepLearningSegmentation2020}. Despite its hybrid encoder design, \textit{TransUNet} underperformed relative to convolutional counterparts (mIoU 62.93\%), likely due to limited training data for learning long-range dependencies and weaker spatial priors introduced by the transformer backbone~\citep{dehghani-dehcheshmeh_oil_2023}. The \textit{EfficientNetV2-M DeepLabV3} achieved comparable overall mIoU (62.09\%) but lagged in \textit{ship} segmentation (23.24\%), suggesting over-smoothing from compound scaling. Overall, \textit{ResNet-34 DeepLabV3\texttt{+}} provided the most balanced class-wise performance, with high IoU across both dominant and minority classes—\textit{sea surface} (94.66\%), \textit{oil spill} (50.40\%), and \textit{land} (95.68\%)—demonstrating strong generalization and efficiency through a shallower backbone compared to deeper or transformer-based variants.
+
+\begin{table}[htbp]
+\centering
+\caption{Model performance on the unseen Krestinin test set (\(n = 569\) tiles). Results are reported as per-class IoU and mean IoU (\%).}
+\label{tab:krestinin_test}
+\resizebox{\textwidth}{!}{%
+  \begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Model}                  & \textbf{mIoU} & \textbf{Sea} & \textbf{Oil} & \textbf{Look-alike} & \textbf{Ship} & \textbf{Land} \\
+    \midrule
+    \textit{TransUNet}              & 62.93         & 93.16        & 44.91        & 49.22               & 43.16         & 84.19         \\
+    \textit{ResNet-34 UNet}         & 65.82         & 94.60        & 50.77        & 43.74               & 45.50         & 94.50         \\
+    \textit{ResNet-34 UNet+ASPP}    & 66.05         & 94.45        & 50.64        & 52.49               & 39.59         & 93.08         \\
+    \textit{ResNet-34 DeepLabV3\texttt{+}} & \textbf{67.82} & \textbf{94.66} & 50.40        & 51.00               & \textbf{47.35} & \textbf{95.68} \\
+    \textit{EfficientNetV2-M DeepLabV3}    & 62.09         & 94.22        & 47.34        & \textbf{54.28}      & 23.24         & 91.36         \\
+    \bottomrule
+  \end{tabular}%
+}
+\end{table}
+
+
+\subsubsection{Cross-domain Testing}
+Modern segmentation and classification tasks increasingly rely on large pre-trained models, yet directly applying these models to out-of-domain imagery often yields suboptimal results due to domain shift \cite{pratapFineArtFinetuning2025}.  These findings underscore that modest, targeted re-training on domain-specific data is both practical and highly effective for closing the generalization gap in cross-domain scenarios. 
+
+Fine-tuning on the Peruvian training split (40 epochs, composite loss in Eq.~\ref{eq:loss_total}) substantially mitigated this gap for most architectures (Table \ref{tab:peru_adaptation}). The ResNet-34 UNet achieved the strongest recovery (51.80 → 56.70 mIoU), improving markedly on the critical oil (+6.9 pp) and look-alike (+9.3 pp) classes—evidence that fine-tuning enhanced boundary discrimination and reduced confusion between low-contrast slicks and background sea. TransUNet and EfficientNetV2-M + DeepLabV3 also benefited (+2.9 pp and +2.3 pp), reflecting their capacity to reuse learned mid-level texture and spectral priors once re-exposed to local backscatter patterns. DeepLabV3\texttt{+} remained stable (+0.3 pp), preserving balanced class performance, particularly for ship detection (22.6 IoU). By contrast, UNet+ASPP showed a minor decrease (−2.1 pp), primarily from degraded look-alike segmentation, consistent with ASPP’s known sensitivity to heterogeneous marine textures. Overall, fine-tuning consistently accelerated convergence and improved final validation mIoU compared to ImageNet-initialized training, confirming that Mediterranean-learned representations transfer effectively to Peruvian SAR imagery when guided by a composite loss emphasizing foreground sensitivity and class-specific penalties.
+
+
+\begin{table}[htbp]
+\centering
+\caption{Per-class IoU (\%) on the Peruvian test set before and after full fine-tuning. “Source-only” refers to models trained solely on Krestinin data; “Adapted” indicates full fine-tuning on Peruvian data. Best results per class in \textbf{bold}.}
+\label{tab:peru_adaptation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Model} & \textbf{Setup} & \textbf{mIoU} & \textbf{Sea Surface} & \textbf{Oil Spill} & \textbf{Look-alike} & \textbf{Ship} & \textbf{Land} \\
+\midrule
+\textit{ResNet-34 UNet} & Source-only & 51.80 & 91.28 & 37.50 & 21.16 & 16.18 & 92.90 \\
+                        & Adapted     & \textbf{56.70} & 93.47 & 44.38 & 30.48 & 21.94 & 93.23 \\
+\textit{ResNet-34 UNet+ASPP} & Source-only & 56.65 & \textbf{94.69} & 43.71 & 35.19 & 17.52 & 92.14 \\
+                             & Adapted     & 54.57 & 94.64 & 40.89 & 20.89 & 22.93 & \textbf{93.51} \\
+\textit{ResNet-34 DeepLabV3+} & Source-only & 53.79 & 93.66 & 38.16 & 25.86 & 17.92 & 93.34 \\
+                              & Adapted     & 54.07 & 94.24 & 38.56 & 23.37 & \textbf{22.64} & 91.52 \\
+\textit{TransUNet}            & Source-only & 51.74 & 93.34 & 39.94 & 23.11 & 13.36 & 88.94 \\
+                              & Adapted     & 54.64 & 92.94 & \textbf{46.00} & 29.77 & 15.40 & 89.09 \\
+\textit{EfficientNet-V2-M DeepLabV3} & Source-only & 49.25 & 91.76 & 35.00 & 23.59 & 5.81 & 90.09 \\
+                                    & Adapted     & 51.51 & 93.996 & 36.48 & 23.10 & 11.08 & 92.87 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+
+\clearpage
+
+\subsubsection{Synthetic label-to-SAR augmentation (MORP--Synth) with scale weighting}
+\label{sec:morp_synth_results}
+
+We evaluate the proposed MORP--Synth framework when combined with multi-scale real patches during mixed training. 
+As defined in §~\ref{sec:training}, each epoch interleaves two real batches per synthetic batch, and the loss of synthetic batches is scaled by 
+$\lambda_{\text{synth}} \in \{25, 50, 100, 150, 200\}$. 
+The fraction of masks edited by MORP is denoted by $\texttt{morph} \in \{\texttt{m00}, \texttt{m50}, \texttt{m100}\}$.
+Results in Table~\ref{tab:synth_morph_scale_multi} (ResNet--34 DeepLabV3\texttt{+}) are reported for two real set sizes per epoch: 
+$N{=}902$ and $N{=}1804$ real patches.
+
+With $N{=}902$, performance increases as $\lambda_{\text{synth}}$ rises from 25 to the 100--200 range. 
+The best mean IoU (58.15\%) is obtained at $\lambda_{\text{synth}}{=}200$, $\texttt{morph50}$, 
+with several settings near $\lambda_{\text{synth}}\in[100,200]$ performing within $\sim$1~pp of this maximum.  
+For $N{=}1804$, the best configuration reaches 60.07\% mIoU at $\lambda_{\text{synth}}{=}150$, $\texttt{morph50}$, 
+followed closely by $\lambda_{\text{synth}}{=}200$, $\texttt{morph50}$ (59.13\%).  
+Relative to the fine-tuned (no-synthetic) DeepLabV3\texttt{+} baseline on the Peruvian dataset (54.07\%), 
+this represents a gain of \textbf{+6.00~pp} in mean IoU.
+
+\begin{table}[htbp]
+\centering
+\caption{Effect of synthetic \texttt{morph} (mask growth) and \texttt{scale} (synthetic dataset size) with multi-scale augmentation during mixed training (ResNet-34 DeepLabV3+). Values are IoU (\%). The left stub indicates the number of real Peruvian training patches ($N$) used in the real stream per epoch.}
+\label{tab:synth_morph_scale_multi}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{c c
+ccc
+ccc
+ccc
+ccc
+ccc
+ccc
+}
+\toprule
+ & & \multicolumn{3}{c}{mIoU} & \multicolumn{3}{c}{Sea} & \multicolumn{3}{c}{Oil} & \multicolumn{3}{c}{Look-alike} & \multicolumn{3}{c}{Ship} & \multicolumn{3}{c}{Land} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}\cmidrule(lr){15-17}\cmidrule(lr){18-20}
+\textbf{Real $N$} & \textbf{Scale} & m00 & m50 & m100 & m00 & m50 & m100 & m00 & m50 & m100 & m00 & m50 & m100 & m00 & m50 & m100 & m00 & m50 & m100 \\
+\midrule
+\multirow{5}{*}{\raisebox{0pt}[0pt][0pt]{\rotatebox[origin=c]{90}{\scriptsize $N=902$}}} &
+25  & 55.74 & 54.12 & 55.62 & 94.59 & 92.74 & 93.15 & 41.36 & 47.79 & 45.45 & 30.04 & 27.03 & 29.83 & 21.83 & 12.06 & 19.42 & 90.86 & 91.00 & 90.23 \\
+& 50  & 56.14 & 56.01 & 54.69 & 94.52 & 94.61 & 93.34 & 44.23 & 44.03 & 47.17 & 29.26 & 29.06 & 27.63 & 22.81 & 22.54 & 16.37 & 89.89 & 89.81 & 88.93 \\
+& 100 & 56.00 & 54.99 & 56.88 & 92.12 & 94.05 & 94.97 & 52.23 & 44.91 & 43.83 & 31.23 & 26.73 & 35.91 & 12.67 & 18.46 & 19.41 & 89.75 & 90.82 & 90.26 \\
+& 150 & 54.68 & 54.55 & 57.43 & 94.80 & 94.86 & 95.04 & 40.12 & 38.01 & 47.07 & 27.55 & 26.21 & 32.16 & 21.24 & 24.27 & 23.08 & 89.70 & 89.40 & 89.82 \\
+& 200 & 55.06 & 58.15 & 54.79 & 92.89 & 95.17 & 95.25 & 47.12 & 47.87 & 40.17 & 28.84 & 33.45 & 26.51 & 16.59 & 24.33 & 20.95 & 89.85 & 89.93 & 91.08 \\
+\midrule 
+\multirow{5}{*}{\raisebox{0pt}[0pt][0pt]{\rotatebox[origin=c]{90}{\scriptsize $N=1804$}}} & 25 & -- & 54.84 & -- & -- & 93.97 & -- & -- & 42.88 & -- & -- & 28.14 & -- & -- & 19.83 & -- & -- & 89.35 & -- \\ & 50 & -- & 53.04 & -- & -- & 94.48 & -- & -- & 37.80 & -- & -- & 23.91 & -- & -- & 17.61 & -- & -- & 91.39 & -- \\ & 100 & -- & 54.98 & -- & -- & 95.13 & -- & -- & 41.37 & -- & -- & 27.92 & -- & -- & 20.07 & -- & -- & 90.42 & -- \\ & 150 & -- & 60.07 & -- & -- & 94.83 & -- & -- & 49.37 & -- & -- & 37.96 & -- & -- & 27.30 & -- & -- & 90.90 & -- \\ & 200 & -- & 59.13 & -- & -- & 95.24 & -- & -- & 46.78 & -- & -- & 36.91 & -- & -- & 25.22 & -- & -- & 91.50 & -- \\ \bottomrule
+\end{tabular}}
+\end{table}
+
+
+
+
+
+
+The improvement concentrates on minority classes: at the best $N{=}1804$ setting, 
+the \textit{oil} class IoU rises from 38.56~$\rightarrow$~49.37 (+10.81~pp) 
+and \textit{look-alike} from 23.37~$\rightarrow$~37.96 (+14.59~pp), 
+with moderate gains on \textit{ship} (+4.66~pp) and nearly unchanged \textit{sea}/\textit{land} (within $\pm$1~pp). 
+These trends confirm that combining label-space morphological perturbations (MORP) 
+with conditional appearance synthesis (SPADE+INADE) enhances boundary diversity 
+and reduces confusion against textured marine backgrounds. 
+Intermediate edit rates ($\texttt{morph50}$) are generally optimal, though $\texttt{morph100}$ can be competitive 
+for $\lambda_{\text{synth}}{=}100$--150, while unedited sets ($\texttt{morph00}$) occasionally prevail at 
+low weights ($\lambda_{\text{synth}}{=}25$--50). 
+Overall, the best regime emerges at \textbf{intermediate-to-high synthetic weight} 
+and \textbf{moderate morphological edit rate}.
+
+These findings support the hypothesis that combining moderate morphological perturbation with balanced gradient weighting enhances domain transfer without compromising real-domain fidelity—paralleling results in domain-randomized robotics and synthetic-to-real vision studies \citep{tobin_domain_randomization_2017,ros_synthia_2016karpathy_2019_imagenet}.
+
+
+
+\subsection{Qualitative Results}
+
+\subsubsection{Visual Comparisons}
+Figure~\ref{fig:patch_comparison} presents patch‐level segmentation outputs for four representative Peruvian scenes, comparing UNet+ASPP (col. b), DeepLabV3+ (col. c) and the vanilla ResNet-34 UNet (col. d). The ResNet-34 UNet consistently produces the sharpest spill boundaries and the cleanest background masks—qualities borne out in its lowest average false‐positive rate on pure‐sea pixels (1.05 \%) and a strong mean IoU of 57.8 \% across all test scenes (Table~\ref{tab:resnet34_unet_fpr}). DeepLabV3+ attains the highest overall average IoU (58.4 \%) but suffers from elevated false alarms (FPR\(_\mathrm{total}\approx1.40\%\)), especially in mixed‐backscatter areas. UNet+ASPP, while capturing broad slick structures more completely, likewise introduces more background misclassifications (FPR\(_\mathrm{total}\approx1.39\%\)), leading to noisier masks. This trade‐off illustrates that multi‐scale context modules enhance recall, but pure skip‐based fusion in ResNet-34 UNet yields the best precision–recall balance for operational oil‐spill delineation.
+
+
+\begin{figure}[htbp]
+  \centering
+  \makebox[\textwidth][c]{%
+  \begin{tabular}{cccccc}
+    % === Column headers ===
+    \textbf{SAR image} &
+    \textbf{GT mask} &
+    \textbf{(DLV3+)} &
+    \textbf{TransUNet} &
+    \textbf{FT-Synth 902} &
+    \textbf{FT-Synth 1804} \\
+    \midrule
+
+    % === Row 1 ===
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/images/118_1_2019-09-09_S1_GRD_VVVH_patch_10.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/mask/118_1_2019-09-09_S1_GRD_VVVH_mask1d_10_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_92/118_1_2019-09-09_S1_GRD_VVVH_patch_10_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/transunet_86/118_1_2019-09-09_S1_GRD_VVVH_patch_10_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_13_scale200_morph50_902/118_1_2019-09-09_S1_GRD_VVVH_patch_10_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_15_scale150_morph50_1804/118_1_2019-09-09_S1_GRD_VVVH_patch_10_mask_rgb.png} \\[0.6em]
+
+    % === Row 2 ===
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/images/129_2_2020-03-19_S1_GRD_VVVH_patch_5.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/mask/129_2_2020-03-19_S1_GRD_VVVH_mask1d_5_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_92/129_2_2020-03-19_S1_GRD_VVVH_patch_5_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/transunet_86/129_2_2020-03-19_S1_GRD_VVVH_patch_5_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_13_scale200_morph50_902/129_2_2020-03-19_S1_GRD_VVVH_patch_5_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_15_scale150_morph50_1804/129_2_2020-03-19_S1_GRD_VVVH_patch_5_mask_rgb.png} \\[0.6em]
+
+    % === Row 3 ===
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/images/129_2_2020-03-19_S1_GRD_VVVH_patch_8.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/mask/129_2_2020-03-19_S1_GRD_VVVH_mask1d_8_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_92/129_2_2020-03-19_S1_GRD_VVVH_patch_8_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/transunet_86/129_2_2020-03-19_S1_GRD_VVVH_patch_8_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_13_scale200_morph50_902/129_2_2020-03-19_S1_GRD_VVVH_patch_8_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_15_scale150_morph50_1804/129_2_2020-03-19_S1_GRD_VVVH_patch_8_mask_rgb.png} \\[0.6em]
+
+    % === Row 4 ===
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/images/146_2_2021-05-25_S1_GRD_VVVH_patch_11.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/mask/146_2_2021-05-25_S1_GRD_VVVH_mask1d_11_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_92/146_2_2021-05-25_S1_GRD_VVVH_patch_11_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/transunet_86/146_2_2021-05-25_S1_GRD_VVVH_patch_11_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_13_scale200_morph50_902/146_2_2021-05-25_S1_GRD_VVVH_patch_11_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_15_scale150_morph50_1804/146_2_2021-05-25_S1_GRD_VVVH_patch_11_mask_rgb.png} \\[0.6em]
+
+    % === Row 5 ===
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/images/10016_2_2018-11-29_S1_GRD_VVVH_patch_20.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/mask/10016_2_2018-11-29_S1_GRD_VVVH_mask1d_20_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_92/10016_2_2018-11-29_S1_GRD_VVVH_patch_20_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/transunet_86/10016_2_2018-11-29_S1_GRD_VVVH_patch_20_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_13_scale200_morph50_902/10016_2_2018-11-29_S1_GRD_VVVH_patch_20_mask_rgb.png} &
+    \includegraphics[width=0.16\textwidth]{figures/patch_img_seg_test_morp/resnet_34_deeplab_v3+_15_scale150_morph50_1804/10016_2_2018-11-29_S1_GRD_VVVH_patch_20_mask_rgb.png} \\
+
+  \end{tabular}}
+  \caption{Comparison of oil spill segmentation predictions across five Peruvian Sentinel-1 patches. Columns show: (a) SAR input, (b) ground truth mask, (c–d) fine-tuned baselines (DeepLabV3+, TransUNet), and (e–f) fine-tuned models with synthetic data using $N{=}902$ and $N{=}1804$ real samples.}
+  \label{fig:patch_comparison_updated}
+\end{figure}
+
+
+
+\paragraph{Per‐Scene Area Statistics}  
+Table~\ref{tab:scene_areas_by_img} summarizes the distribution of oil and look‐alike coverage across eight Peruvian spill events that were part of the test split. This was generated via the Sentinel 1 images of size 5567x5567 at 10m resolution.  We observe a wide range of slick extents: the largest oil footprint occurs in scene \texttt{10016\_2} (31.6\,km\(^2\)), while the smallest appears in scene \texttt{146\_1} (0.39\,km\(^2\)). Look‐alike areas likewise vary from 6.16\,km\(^2\) (\texttt{10016\_2}) up to 18.34\,km\(^2\) (\texttt{111\_4}), reflecting either natural sea‐surface phenomena or residual spill artifacts. These per‐scene statistics highlight the severe class imbalance and the need for robust negative sampling: in scene \texttt{111\_4} the look‐alike area actually exceeds the true oil area, underscoring why our 1:1 sea‐only sampling was essential to teach the model local background variability.
+
+
+\paragraph{Qualitative Segmentation Examples}  
+Figure~\ref{fig:full_seg_examples} presents full‐image segmentation for four representative Peruvian spill scenes using the same model as the results in Table~\ref{tab:scene_areas_by_img}. In image (a), the model accurately delineates a narrow oil band along the coast, with only sparse false positives offshore. Image (b) demonstrates robustness to complex shoreline geometry: despite a jagged coast, the predicted mask tightly follows the true slick edge. The small spill in image (c)  tests sensitivity to sub-kilometer features; here the network successfully captures thin slick patches while largely ignoring surrounding look‐alikes. Finally, image (d) illustrates a challenging mixed case: most of the oil is correctly segmented, and look‐alike noise is largely suppressed, although a few isolated false positives remain near the shore. Together, these examples validate that our ResNet-34 UNet backbone fine-tuned on local data, can recover both large and fine-scale spills in operational SAR imagery.
+
+
+\begin{table}[htbp]
+\centering
+\caption{Per-scene oil and look‐alike pixel counts and areas, indexed by image ID from Table~\ref{tab:peruvian_selection}.}
+\label{tab:scene_areas_by_img}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Img} & \textbf{Oil pixels} & \textbf{Oil area (km\(^2\))} & \textbf{Look‐alike pixels} & \textbf{Look‐alike area (km\(^2\))} \\
+\midrule
+14 & 316\,190 & 31.619 &  61\,659 &  6.1659 \\  % 2018-11-29
+17 & 178\,057 & 17.8057 & 183\,415 & 18.3415 \\ % 2019-04-30
+18 &  53\,028 &  5.3028 &  74\,673 &  7.4673 \\ % 2019-09-09
+19 & 200\,777 & 20.0777 & 129\,578 & 12.9578 \\ % 2019-10-27
+21 & 114\,574 & 11.4574 & 148\,100 & 14.8100 \\ % 2020-03-19
+25 &   3\,938 &  0.3938 &  45\,980 &  4.5980 \\ % 2021-05-22
+26 & 128\,597 & 12.8597 & 119\,963 & 11.9963 \\ % 2021-05-25
+28 & 171\,286 & 17.1286 &  71\,314 &  7.1314 \\ % 2021-11-18
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tabular}{cc}
+    % Row 1
+    \num\putindeepbox[a]{\includegraphics[width=0.45\textwidth]{figures/full_img_seg_test/118_1_2019-09-09.png}}
+    &
+    \num\putindeepbox[b]{\includegraphics[width=0.45\textwidth]{figures/full_img_seg_test/120_4_2019-10-27.png}}
+    \\[1em]
+    % Row 2
+    \num\putindeepbox[c]{\includegraphics[width=0.45\textwidth]{figures/full_img_seg_test/146_2_2021-05-25.png}}
+    &
+    \num\putindeepbox[d]{\includegraphics[width=0.45\textwidth]{figures/full_img_seg_test/10016_2_2018_11_29.png}}
+    \\
+  \end{tabular}
+  \caption{Full‐image segmentation examples on four Peruvian spill scenes, referenced by image ID: (a) Img 18, (b) Img 19, (c) Img 26, (d) Img 14 (see Table~\ref{tab:peruvian_selection} for reference).}
+  \label{fig:full_seg_examples}
+\end{figure}
+
+
+
+
+
+
+\clearpage
+
+
+\section{Conclusions}
+
+We have demonstrated that transferring deep segmentation models from a well-studied Mediterranean SAR dataset to the Peruvian coast requires explicit domain adaptation:
+
+\begin{itemize}[leftmargin=*,label=\textbullet]
+  \item \textbf{Source-only generalization fails:} Models trained solely on European waters drop from 67.8 \% mIoU to as low as 35.7 \% on Peruvian SAR scenes.
+  \item \textbf{Fine-tuning is effective:} Supervising on just 2 132 local patches yields an average +12 pp gain in mIoU (40.1 \% → 51.9 \%), closing much of the domain gap.
+  \item \textbf{Model trade-offs:}  
+    \begin{itemize}
+      \item UNet+ASPP attains the highest oil-spill IoU (13.2 \%),  
+      \item DeepLabV3\texttt{+} excels on look-alikes (28.2 \%) and ship classes (34.5 \%),  
+      \item Pure skip-based UNet maintains the lowest false-positive rates (< 1.1 \%), vital for operational reliability (See \ref{tab:resnet34_unet_fpr}
+    \end{itemize}
+  \item \textbf{Operational implications:} Multi-scale context modules boost recall but incur more false positives; skip-fusion architectures offer a precision–recall balance suited to real-world monitoring.
+  \item \textbf{Future directions:} We plan to explore unsupervised domain adaptation methods, augment the training pool with synthetic cGAN-generated samples, and integrate models into near-real-time, on-board SAR processing pipelines.
+\end{itemize}
+\clearpage
+
+\section{Appendix}
+
+
+
+\begin{table}[p]
+\centering
+\caption{Sentinel-1 SAR images used in this study, ordered by spill date. Includes acquisition delay and patch counts for training and testing subsets.}
+\label{tab:peruvian_selection}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Img} & \textbf{Spill Date} & \textbf{Latitude} & \textbf{Longitude} & \textbf{Acquisition Date} & \textbf{Δ Days} & \textbf{Patches} & \textbf{Split} \\
+\hline
+1 & 22/09/2014 & -80.7519 & -3.5860 & 11/10/2014 & 19 & 38 & Train \\
+2 & 14/03/2015 & -81.2819 & -4.5736 & 16/03/2015 & 2 & 64 & Train \\
+3 & 05/01/2016 & -71.3392 & -17.6346 & 13/01/2016 & 8 & 52 & Train \\
+4 & 11/03/2016 & -79.0288 & -8.1117 & 26/03/2016 & 15 & 88 & Train \\
+5 & 19/05/2016 & -81.2745 & -4.5963 & 30/05/2016 & 11 & 18 & Train \\
+6 & 08/08/2016 & -71.3393 & -17.6346 & 22/08/2016 & 14 & 157 & Train \\
+7 & 27/03/2017 & -81.2922 & -4.4562 & 13/04/2017 & 17 & 68 & Train \\
+8 & 27/03/2017 & -81.2922 & -4.4562 & 01/04/2017 & 5 & 56 & Train \\
+9 & 27/03/2017 & -81.2922 & -4.4562 & 16/04/2017 & 20 & 44 & Train \\
+10 & 11/07/2017 & -81.2717 & -4.3194 & 18/07/2017 & 7 & 6 & Train \\
+11 & 11/07/2017 & -81.2717 & -4.3194 & 21/07/2017 & 10 & 32 & Train \\
+12 & 05/06/2018 & -77.1448 & -12.0472 & 17/06/2018 & 12 & 157 & Train \\
+13 & 11/10/2018 & -77.1457 & -12.0472 & 27/10/2018 & 16 & 70 & Train \\
+14 & 19/11/2018 & -79.0288 & -8.1117 & 29/11/2018 & 10 & 58 & Test \\
+15 & 07/04/2019 & -81.3123 & -4.6213 & 18/04/2019 & 11 & 10 & Train \\
+16 & 18/04/2019 & -81.2604 & -4.2810 & 18/04/2019 & 0 & 24 & Train \\
+17 & 18/04/2019 & -81.2604 & -4.2810 & 30/04/2019 & 12 & 60 & Test \\
+18 & 04/09/2019 & -81.3656 & -4.4692 & 09/09/2019 & 5 & 22 & Test \\
+19 & 14/10/2019 & -81.2777 & -4.3096 & 27/10/2019 & 13 & 32 & Test \\
+20 & 18/03/2020 & -81.2349 & -4.2436 & 31/03/2020 & 13 & 74 & Train \\
+21 & 18/03/2020 & -81.2349 & -4.2436 & 19/03/2020 & 1 & 22 & Test \\
+22 & 17/08/2020 & -81.3086 & -4.6100 & 22/08/2020 & 5 & 32 & Train \\
+23 & 09/01/2021 & -81.3235 & -4.7120 & 25/01/2021 & 16 & 38 & Train \\
+24 & 28/04/2021 & -81.2725 & -4.2896 & 10/05/2021 & 12 & 26 & Train \\
+25 & 17/05/2021 & -81.3299 & -4.7144 & 22/05/2021 & 5 & 62 & Test \\
+26 & 17/05/2021 & -81.3299 & -4.7144 & 25/05/2021 & 8 & 26 & Test \\
+27 & 02/11/2021 & -81.3048 & -4.2936 & 18/11/2021 & 16 & 18 & Train \\
+28 & 04/11/2021 & -81.2940 & -4.4414 & 18/11/2021 & 14 & 30 & Test \\
+29 & 15/01/2022 & -77.1520 & -11.9256 & 02/02/2022 & 18 & 76 & Train \\
+30 & 15/01/2022 & -77.1520 & -11.9256 & 25/01/2022 & 10 & 158 & Train \\
+31 & 15/01/2022 & -77.1680 & -11.9638 & 25/01/2022 & 10 & 160 & Train \\
+32 & 24/08/2022 & -81.2725 & -4.2896 & 30/08/2022 & 6 & 14 & Train \\
+33 & 09/10/2022 & -81.0984 & -4.5111 & 17/10/2022 & 8 & 66 & Train \\
+34 & 18/08/2023 & -81.2921 & -4.3025 & 25/08/2023 & 7 & 54 & Train \\
+35 & 18/08/2023 & -81.2921 & -4.3025 & 03/09/2023 & 16 & 30 & Train \\
+36 & 18/08/2023 & -81.2921 & -4.3025 & 22/08/2023 & 4 & 38 & Train \\
+37 & 21/12/2024 & -81.3319 & -4.5322 & 07/01/2025 & 17 & 58 & Train \\
+38 & 21/12/2024 & -81.3319 & -4.5322 & 29/12/2024 & 8 & 40 & Train \\
+39 & 21/12/2024 & -81.3319 & -4.5322 & 26/12/2024 & 5 & 20 & Train \\
+40 & 21/12/2024 & -81.3319 & -4.5322 & 10/01/2025 & 20 & 34 & Train \\
+\hline
+\end{tabular}
+\end{table}
+
+% Table for ResNet-34 UNet
+\begin{table}[htbp]
+\centering
+\caption{Per‐scene performance and false‐positive rates for ResNet-34 UNet on the Peruvian test set.}
+\label{tab:resnet34_unet_fpr}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Scene} & \textbf{mIoU} & \(\mathrm{FPR}_{\mathrm{total}}\) & \(\mathrm{FPR}_{\mathrm{oil}}\) & \(\mathrm{FPR}_{\mathrm{look}}\) \\
+\midrule
+14 & 67.41\% & 0.58\% & 0.23\% & 0.15\% \\
+17 & 61.93\% & 0.59\% & 0.15\% & 0.19\% \\
+18 & 44.71\% & 1.51\% & 0.16\% & 0.29\% \\
+19 & 59.80\% & 0.54\% & 0.10\% & 0.21\% \\
+21 & 60.32\% & 1.42\% & 0.30\% & 0.60\% \\
+25 & 53.89\% & 0.89\% & 0.01\% & 0.18\% \\
+26 & 59.25\% & 1.50\% & 0.27\% & 0.38\% \\
+28 & 54.70\% & 0.85\% & 0.51\% & 0.17\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Table for ResNet-34 UNet+ASPP
+\begin{table}[htbp]
+\centering
+\caption{Per‐scene performance and false‐positive rates for ResNet-34 UNet+ASPP on the Peruvian test set.}
+\label{tab:resnet34_unet_aspp_fpr}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Scene} & \textbf{mIoU} & \(\mathrm{FPR}_{\mathrm{total}}\) & \(\mathrm{FPR}_{\mathrm{oil}}\) & \(\mathrm{FPR}_{\mathrm{look}}\) \\
+\midrule
+14 & 66.43\% & 1.00\% & 0.34\% & 0.49\% \\
+17 & 59.55\% & 1.21\% & 0.23\% & 0.73\% \\
+18 & 42.42\% & 1.60\% & 0.25\% & 0.41\% \\
+19 & 58.96\% & 1.01\% & 0.12\% & 0.68\% \\
+21 & 58.19\% & 3.10\% & 0.32\% & 2.31\% \\
+25 & 53.04\% & 0.93\% & 0.03\% & 0.23\% \\
+26 & 56.42\% & 1.56\% & 0.42\% & 0.46\% \\
+28 & 53.19\% & 0.74\% & 0.48\% & 0.10\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Table for ResNet-34 DeepLabV3+
+\begin{table}[htbp]
+\centering
+\caption{Per‐scene performance and false‐positive rates for ResNet-34 DeepLabV3\texttt{+} on the Peruvian test set.}
+\label{tab:resnet34_deeplabv3_fpr}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Scene} & \textbf{mIoU} & \(\mathrm{FPR}_{\mathrm{total}}\) & \(\mathrm{FPR}_{\mathrm{oil}}\) & \(\mathrm{FPR}_{\mathrm{look}}\) \\
+\midrule
+14 & 67.11\% & 0.55\% & 0.42\% & 0.00\% \\
+17 & 63.48\% & 0.57\% & 0.15\% & 0.23\% \\
+18 & 46.18\% & 1.18\% & 0.10\% & 0.33\% \\
+19 & 62.14\% & 1.84\% & 0.15\% & 1.55\% \\
+21 & 59.54\% & 4.92\% & 0.36\% & 4.28\% \\
+25 & 54.99\% & 0.50\% & 0.01\% & 0.02\% \\
+26 & 59.69\% & 1.31\% & 0.24\% & 0.47\% \\
+28 & 54.15\% & 0.37\% & 0.23\% & 0.00\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Baseline fine-tuned segmentation performance on the Peruvian dataset using the standard Weighted Cross-Entropy + Dice loss. 
+All models were trained without multi-scale augmentation or hard-negative sampling.}
+\label{tab:baseline_wce_dice}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Model} & \textbf{Epoch (ckpt)} & \textbf{Pixel Acc.} & \textbf{mIoU} & \textbf{Sea (0)} & \textbf{Oil (1)} & \textbf{Look-alike (2)} & \textbf{Ship (3)} & \textbf{Land (4)} \\
+\midrule
+ResNet-34 DeepLabV3\texttt{+} & 88 & 0.9345 & 0.5085 & 0.9471 & 0.3085 & 0.1582 & 0.2190 & 0.9097 \\
+ResNet-34 UNet+ASPP            & 86 & 0.9189 & 0.5190 & 0.9240 & 0.3777 & 0.1257 & 0.2844 & 0.8831 \\
+ResNet-34 UNet                 & 71 & 0.9453 & 0.5255 & 0.9481 & 0.4505 & 0.1087 & 0.2308 & 0.8893 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+
+
+\begin{table}[htbp]
+\centering
+\caption{Per-class IoU (\%) on the Peruvian test set before and after full fine-tuning. “Source-only” refers to models trained solely on Mediterranean data; “Adapted” refers to single-scale fine-tuning, and “Multi-scale” denotes the fine-tuning with multi-scale augmentation. Green numbers indicate additive gains (\textcolor{ForestGreen}{+}), red numbers losses (\textcolor{BrickRed}{−}) relative to the single-scale adapted version. Best results per class in \textbf{bold}.}
+\label{tab:peru_adaptation_multiscale}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Model} & \textbf{Setup} & \textbf{mIoU} & \textbf{Sea Surface} & \textbf{Oil Spill} & \textbf{Look-alike} & \textbf{Ship} & \textbf{Land} \\
+\midrule
+\textit{ResNet-34 UNet} & Source-only & 51.80 & 91.28 & 37.50 & 21.16 & 16.18 & 92.90 \\
+                        & Adapted     & 56.70 & 93.47 & 44.38 & 30.48 & 21.94 & 93.23 \\
+                        & Scratch (multi-scale) & 55.15 \textcolor{BrickRed}{−1.55} & 92.24 \textcolor{BrickRed}{−1.23} & 45.77 \textcolor{ForestGreen}{+1.39} & 26.97 \textcolor{BrickRed}{−3.51} & 16.98 \textcolor{BrickRed}{−4.96} & 93.79 \textcolor{ForestGreen}{+0.56} \\
+                        & Fine-tuned (multi-scale) & \textbf{56.67} \textcolor{BrickRed}{−0.03} & 93.56 \textcolor{ForestGreen}{+0.09} & 42.22 \textcolor{BrickRed}{−2.16} & 31.53 \textcolor{ForestGreen}{+1.05} & 23.12 \textcolor{ForestGreen}{+1.18} & 92.89 \textcolor{BrickRed}{−0.34} \\
+\midrule
+\textit{ResNet-34 UNet+ASPP} & Source-only & 56.65 & \textbf{94.69} & 43.71 & 35.19 & 17.52 & 92.14 \\
+                             & Adapted     & 54.57 & 94.64 & 40.89 & 20.89 & 22.93 & \textbf{93.51} \\
+                             & Scratch (multi-scale) & 53.58 \textcolor{BrickRed}{−0.99} & 93.22 \textcolor{BrickRed}{−1.42} & 40.87 \textcolor{BrickRed}{−0.02} & 23.78 \textcolor{ForestGreen}{+2.89} & 17.49 \textcolor{BrickRed}{−5.44} & 92.54 \textcolor{BrickRed}{−0.97} \\
+                             & Fine-tuned (multi-scale) & 53.41 \textcolor{BrickRed}{−1.16} & 95.25 \textcolor{ForestGreen}{+0.61} & 35.65 \textcolor{BrickRed}{−5.24} & 21.47 \textcolor{ForestGreen}{+0.58} & 21.02 \textcolor{BrickRed}{−1.91} & 93.65 \textcolor{ForestGreen}{+0.14} \\
+\midrule
+\textit{ResNet-34 DeepLabV3+} & Source-only & 53.79 & 93.66 & 38.16 & 25.86 & 17.92 & 93.34 \\
+                              & Adapted     & 54.07 & 94.24 & 38.56 & 23.37 & \textbf{22.64} & 91.52 \\
+                              & Scratch (multi-scale) & 54.61 \textcolor{ForestGreen}{+0.54} & 93.15 \textcolor{BrickRed}{−1.09} & 43.69 \textcolor{ForestGreen}{+5.13} & 27.88 \textcolor{ForestGreen}{+4.51} & 16.56 \textcolor{BrickRed}{−6.08} & 91.77 \textcolor{ForestGreen}{+0.25} \\
+                              & Fine-tuned (multi-scale) & 52.62 \textcolor{BrickRed}{−1.45} & 94.20 \textcolor{BrickRed}{−0.04} & 35.79 \textcolor{BrickRed}{−2.77} & 21.95 \textcolor{BrickRed}{−1.42} & 19.28 \textcolor{BrickRed}{−3.36} & 91.87 \textcolor{ForestGreen}{+0.35} \\
+\midrule
+\textit{TransUNet}            & Source-only & 51.74 & 93.34 & 39.94 & 23.11 & 13.36 & 88.94 \\
+                              & Adapted     & 54.64 & 92.94 & \textbf{46.00} & 29.77 & 15.40 & 89.09 \\
+                              & Scratch (multi-scale) & 55.05 \textcolor{ForestGreen}{+0.41} & 93.62 \textcolor{ForestGreen}{+0.68} & 43.89 \textcolor{BrickRed}{−2.11} & 31.30 \textcolor{ForestGreen}{+1.53} & 14.28 \textcolor{BrickRed}{−1.12} & 91.58 \textcolor{ForestGreen}{+2.49} \\
+                              & Fine-tuned (multi-scale) & 53.80 \textcolor{BrickRed}{−0.84} & 92.57 \textcolor{BrickRed}{−0.37} & 43.64 \textcolor{BrickRed}{−2.36} & 26.92 \textcolor{BrickRed}{−2.85} & 14.40 \textcolor{BrickRed}{−1.00} & 90.00 \textcolor{ForestGreen}{+0.91} \\
+\midrule
+\textit{EfficientNet-V2-M DeepLabV3} & Source-only & 49.25 & 91.76 & 35.00 & 23.59 & 5.81 & 90.09 \\
+                                    & Adapted     & 51.51 & 93.99 & 36.48 & 23.10 & 11.08 & 92.87 \\
+                                    & Scratch (multi-scale) & 49.72 \textcolor{BrickRed}{−1.79} & 92.65 \textcolor{BrickRed}{−1.34} & 34.10 \textcolor{BrickRed}{−2.38} & 24.66 \textcolor{ForestGreen}{+1.56} & 7.36 \textcolor{BrickRed}{−3.72} & 91.26 \textcolor{BrickRed}{−1.61} \\
+                                    & Fine-tuned (multi-scale) & 54.10 \textcolor{ForestGreen}{+2.59} & 94.49 \textcolor{ForestGreen}{+0.50} & 43.06 \textcolor{ForestGreen}{+6.58} & 28.65 \textcolor{ForestGreen}{+5.55} & 10.56 \textcolor{BrickRed}{−0.52} & 93.73 \textcolor{ForestGreen}{+0.86} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+
+\clearpage
+\printbibliography
+\end{document}
