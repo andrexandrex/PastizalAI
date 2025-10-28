@@ -20,6 +20,7 @@ Requisitos / Entorno
   - optuna o hyperopt
   - joblib
   - pandas, numpy
+  - pyomo
 
 Ejecutar optimizaciones (ejemplo)
 ---------------------------------
@@ -29,9 +30,15 @@ Ejecutar optimizaciones (ejemplo)
    ```
 2. Ejecutar script de optimización (ejemplo):
    ```bash
-   python scripts/optimize.py --config configs/opt_config.yaml
+   pip install -r requirements.txt
+
+  # 3) Prepare data:
+  python prepare_data.py
+  
+  # 4) Optimize:
+  python optimize_allocation.py
    ```
-3. Guardar resultados en `experiments/<fecha>/` con métricas y configuraciones.
+3. Guardar resultados como  budget_01_selection y budget_02_selection para los dos presupuestos: 23,000$ y 90,000$
 
 Reproducibilidad
 ----------------
