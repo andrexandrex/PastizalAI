@@ -1,0 +1,47 @@
+# --- Inputs ---
+paths:
+  index_tif: "/home/ajuarez/opti/Indice_Pastizal_Tambo.tif"
+  distance_tif: "/home/ajuarez/opti/distancia_a_lineas.tif"
+  class_tif: "/home/ajuarez/opti/Clasificacion_Tambo.tif"
+  out_dir: "/home/ajuarez/opti/out"  # write arrays + outputs here
+
+# Eligible classes
+eligible_classes: [1, 3]  # 1=Bofedal, 3=Pastizal seco
+
+# Type weights (ecological multipliers)
+type_weight:
+  "1": 1.2   # Bofedal
+  "2": 0.2   # No productivo
+  "3": 1.0   # Pastizal seco
+
+# Cost per hectare (USD/ha)
+cost_ha:
+  "1": 1800
+  "2": 5000
+  "3": 900
+
+# Access/Distance
+alpha_per_km: 0.10   # +10% cost per km
+access_decay: 1.0    # exp(-access_decay * normalized_distance)
+
+# Carbon economics (edit to your program)
+delta_tCO2e_per_ha: 1.5   # incremental tCO2e/ha/year from restoration
+years: 10                 # crediting horizon
+price_per_tCO2e: 12.0     # USD/tCO2e
+
+# Optional co-benefit uplift (USD/ha) by class (additive)
+cobenefit_ha:
+  "1": 80
+  "2": 0
+  "3": 40
+
+# Budget & penalties
+budget_usd: 90000
+min_spend_usd: 0  # optional lower bound 20 000
+blm_multiplier_mean_cost: 0.05  # BLM = mean(cost_valid) * this
+
+# Neighborhood (4 or 8)
+neighbors: 4
+
+# Solver
+solver: "appsi_highs"  # or "gurobi", "cbc", "glpk"
