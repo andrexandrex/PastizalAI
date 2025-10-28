@@ -49,3 +49,5 @@ Reproducibilidad
   export OMP_NUM_THREADS=1
   export MKL_NUM_THREADS=1
 Instalación de solver glpk
+
+Resultados de optimización se pueden encontrar en opti_pastizalAI_final.ipynb que permite visualización y el cálculo de la estimación de beneficio económico del ppt (anual)
