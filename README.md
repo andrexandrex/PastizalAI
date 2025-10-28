@@ -18,7 +18,7 @@ El proyecto se organiza en los siguientes módulos principales:
 * **`/codigo_optimizacion/`** 📈
     * Scripts y notebooks dedicados a la búsqueda y ajuste fino de hiperparámetros, experimentación y *tracking* de modelos (MLflow, etc.).
 
-* **`/codigos_potenciales_alerta_temprana/`** ⚠️
+* **`/Cod_Sistema_Alerta_Temprana/`** ⚠️
     * Pipelines y notebooks orientados a la detección temprana de anomalías o cambios significativos en series temporales y observaciones espaciales.
 
 ---
