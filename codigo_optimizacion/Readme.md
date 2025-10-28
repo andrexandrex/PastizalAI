@@ -2,7 +2,7 @@
 
 Resumen
 -------
-Esta carpeta debe agrupar scripts y notebooks destinados a optimizar modelos, hiperparámetros o pipelines (ej.: GridSearch, Bayesian optimization, tuning de hiperparámetros, optimización de preprocesamiento).
+Esta carpeta debe agrupar scripts y notebooks destinados a optimizar la asignación de recuperación de pixeles, hiperparámetros o pipelines (ej.: GridSearch, Bayesian optimization, tuning de hiperparámetros, optimización de preprocesamiento).
 
 Contenido esperado
 ------------------
