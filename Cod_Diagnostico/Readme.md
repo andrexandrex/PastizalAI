@@ -1,12 +1,27 @@
-# Resultados de Evaluación de Modelos
+# Resultados de Evaluación de Modelos para Análisis Geoespacial
 
-Este repositorio contiene los resultados de la evaluación de varios modelos de machine learning para predecir diferentes variables.
+Este repositorio contiene los resultados de la evaluación de varios modelos de machine learning desarrollados para predecir variables ambientales clave. El objetivo final es generar mapas de predicción para el análisis de la degradación, la biomasa y las reservas de carbono.
 
+---
+
+## Productos Generados: Mapas de Predicción
+
+Los modelos evaluados a continuación se utilizaron para generar los siguientes productos cartográficos:
+
+1.  **Mapa de Carbono Stock:** Estimación de la distribución espacial del Carbono Orgánico del Suelo (COS).
+2.  **Mapa de Biomasa (Dry_Weigth):** Predicción de la biomasa aérea (peso seco) en los pastizales.
+3.  **Mapa de Erosividad:** Zonificación del riesgo potencial de erosión del suelo.
+4.  **Mapa de Cobertura de Suelo:** Clasificación de los diferentes tipos de cobertura vegetal y suelo (bosque, pastizal, suelo desnudo, etc.).
+5.  **Mapa de Políticas Potenciales:** Un mapa de síntesis que cruza los resultados anteriores para identificar zonas críticas de intervención, conservación o restauración.
+
+A continuación, se presentan las métricas de rendimiento detalladas de los modelos utilizados para crear estos mapas.
+
+---
 ---
 
 ## Modelos de Regresión (Carbono Stock, Erosividad, Dry_weigth)
 
-A continuación se muestran las tablas de métricas para los modelos de regresión.
+Estas son las métricas de los modelos que predicen valores numéricos continuos (ej. toneladas de carbono, kg de biomasa).
 
 ### Tabla 1: Resultados (Carbono Stock / Erosividad)
 
@@ -21,7 +36,7 @@ A continuación se muestran las tablas de métricas para los modelos de regresi�
 
 <br>
 
-### Tabla 2: Resultados (Dry_weigth)
+### Tabla 2: Resultados (Dry_weigth / Biomasa)
 
 | Modelo | MAE_Train | RMSE_Train | R2_Train | MAPE_Train | MAE_Test | RMSE_Test | R2_Test | MAPE_Test |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -64,13 +79,13 @@ Estos son los resultados de los modelos entrenados para predecir la cobertura de
 
 ### Explicación de Métricas de Clasificación
 
-* **Accuracy (Exactitud)**: El porcentaje de predicciones correctas. `(Predicciones Correctas / Total de Predicciones)`. Es útil, pero puede ser engañoso si las clases están desbalanceadas (ej. 90% de suelo es "Bosque" y 10% "Agua").
-* **Precision (Precisión)**: De todas las veces que el modelo predijo una clase (ej. "Agua"), ¿qué porcentaje acertó? Mide la calidad de la predicción.
-* **Recall (Sensibilidad)**: De todos los valores reales de una clase (ej. "Agua"), ¿qué porcentaje el modelo fue capaz de encontrar? Mide la cantidad de positivos que el modelo "capturó".
-* **F1-Score**: La media armónica entre Precision y Recall. Es una métrica única que balancea ambas: un modelo con alta Precision pero bajo Recall (o viceversa) tendrá un F1-Score bajo. Es una de las mejores métricas para evaluar el rendimiento general en clasificación.
+* **Accuracy (Exactitud)**: El porcentaje de predicciones correctas. `(Predicciones Correctas / Total de Predicciones)`. Es útil, pero puede ser engañoso si las clases están desbalanceadas.
+* **Precision (Precisión)**: De todas las veces que el modelo predijo una clase, ¿qué porcentaje acertó? Mide la calidad de la predicción.
+* **Recall (Sensibilidad)**: De todos los valores reales de una clase, ¿qué porcentaje el modelo fue capaz de encontrar? Mide la cantidad de positivos que el modelo "capturó".
+* **F1-Score**: La media armónica entre Precision y Recall. Es una métrica única que balancea ambas. Es una de las mejores métricas para evaluar el rendimiento general en clasificación.
 
 **Objetivo para todas las métricas de clasificación:** **Cuanto más alto (cercano a 1.0 o 100%), mejor.**
 
 **Análisis Rápido (Tabla 3):**
-* **Random Forest** y **XGBoost** muestran un claro **sobreajuste (overfitting)**. Tienen un rendimiento perfecto en `_Train` (1.0000 y 0.9441) pero su rendimiento cae significativamente en `_Test` (0.7647 y 0.7765).
+* **Random Forest** y **XGBoost** muestran un claro **sobreajuste (overfitting)**. Tienen un rendimiento perfecto en `_Train` pero su rendimiento cae significativamente en `_Test`.
 * Los demás modelos (SVM, Lasso, Ridge) son más estables, con rendimientos similares en Train y Test, aunque su rendimiento general es ligeramente inferior al de XGBoost en Test.
