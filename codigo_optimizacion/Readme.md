@@ -48,10 +48,4 @@ Reproducibilidad
   ```bash
   export OMP_NUM_THREADS=1
   export MKL_NUM_THREADS=1
-  ```
-
-Buenas prácticas
-----------------
-- Incluye logs con timestamps.
-- Usa experiment tracking (MLflow, Weights & Biases o un simple CSV/JSON de resultados).
-- Documenta la métrica objetivo y el criterio de parada (evaluación en validación cruzada, holdout).
+Instalación de solver glpk
